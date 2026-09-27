@@ -15,7 +15,7 @@ import argparse
 import json
 from pathlib import Path
 
-from shared_config import get_llm, get_embeddings, get_chroma_client, Statement, save_statements
+from agents.shared_config import get_llm, get_embeddings, get_chroma_client, Statement, save_statements
 
 # File extensions we scan. Extend as needed for the demo repo's stack.
 CODE_EXTENSIONS = {".py", ".js", ".ts", ".jsx", ".tsx", ".java", ".go"}
@@ -65,7 +65,7 @@ def find_code_files(repo_path: Path) -> list[Path]:
     return found
 
 
-def chunk_code(text: str, max_chars: int = 6000) -> list[str]:
+def chunk_code(text: str, max_chars: int = 2500) -> list[str]:
     """Naive chunking for large files. A smarter version could chunk by
     function/class boundary using an AST parser -- worth doing if time
     allows, since it keeps functions intact."""
@@ -97,6 +97,9 @@ def extract_facts_from_file(llm, filepath: Path, repo_path: Path) -> list[Statem
             facts = json.loads(raw)
         except json.JSONDecodeError:
             print(f"  [warn] Could not parse facts JSON from {rel_path}, skipping chunk")
+            print("  [debug] Raw LLM response:")
+            print(raw[:3000])
+            print("  [debug] End raw response")
             continue
 
         for f in facts:

@@ -286,8 +286,183 @@ function App() {
    */
 
   useEffect(() => {
-    // Backend/API integration will be added here.
-  }, []);
+  const loadAgentResults = async () => {
+    try {
+      setDashboardData((prev) => ({
+        ...prev,
+        system: {
+          status: "loading",
+          message: "Running BOB agent analysis..."
+        }
+      }));
+
+      const [consistencyRes, evidenceRes, claimsRes] = await Promise.all([
+        fetch("/data/documentation_consistency.json"),
+        fetch("/data/evidence.json"),
+        fetch("/data/claims.json")
+      ]);
+
+      if (!consistencyRes.ok || !evidenceRes.ok || !claimsRes.ok) {
+        throw new Error("Could not load agent results.");
+      }
+
+      const consistency = await consistencyRes.json();
+      const evidence = await evidenceRes.json();
+      const claims = await claimsRes.json();
+
+      const consistencyFindings = Array.isArray(consistency.findings)
+        ? consistency.findings
+        : [];
+
+      const evidenceFindings = Array.isArray(evidence.findings)
+        ? evidence.findings
+        : [];
+
+      const claimList = Array.isArray(claims)
+        ? claims
+        : Array.isArray(claims.claims)
+          ? claims.claims
+          : Array.isArray(claims.statements)
+            ? claims.statements
+            : [];
+
+      const totalClaims = claimList.length;
+
+      const inconsistentClaims = consistencyFindings.length;
+
+      const consistencyScore =
+        totalClaims > 0
+          ? Math.max(
+              0,
+              Math.round(
+                ((totalClaims - inconsistentClaims) / totalClaims) * 100
+              )
+            )
+          : 0;
+
+      const files = Array.isArray(consistency.sources_checked)
+        ? consistency.sources_checked.map((file, index) => ({
+            id: index + 1,
+            name:
+              typeof file === "string"
+                ? file
+                : file?.name || file?.path || `Document ${index + 1}`,
+            status: "checked"
+          }))
+        : [];
+
+      const findings = [
+        ...consistencyFindings.map((item, index) => ({
+          id: `consistency-${index}`,
+          type: "Documentation Consistency",
+          title:
+            item.title ||
+            item.issue ||
+            item.description ||
+            "Documentation inconsistency detected",
+          description:
+            item.description ||
+            item.explanation ||
+            item.issue ||
+            "The documentation contains potentially inconsistent information.",
+          severity: item.severity || "medium",
+          source: item.source || item.sources || "Documentation"
+        })),
+
+        ...evidenceFindings.map((item, index) => ({
+          id: `evidence-${index}`,
+          type: "Evidence",
+          title:
+            item.title ||
+            item.issue ||
+            item.description ||
+            "Evidence finding",
+          description:
+            item.description ||
+            item.explanation ||
+            item.issue ||
+            "Evidence review completed.",
+          severity: item.severity || "medium",
+          source: item.source || item.sources || "Evidence Agent"
+        }))
+      ];
+
+      setDashboardData({
+        project: {
+          name: "BOB AI Documentation Guardian",
+          organization: "IBM Hackathon"
+        },
+
+        stats: {
+          documentationFiles: files.length,
+          checkableClaims: totalClaims,
+          potentialInconsistencies: inconsistentClaims,
+          consistencyScore
+        },
+
+        documentation: {
+          files
+        },
+
+        consistency: {
+          consistentClaims: Math.max(0, totalClaims - inconsistentClaims),
+          inconsistentClaims,
+          notEvaluated: 0,
+          score: consistencyScore
+        },
+
+        inconsistencies: consistencyFindings,
+
+        findings,
+
+        agents: [
+          {
+            id: "documentation-consistency",
+            name: "Documentation Consistency Agent",
+            description:
+              "Checks documentation for conflicting and inconsistent claims.",
+            status:
+              consistency.status === "completed" ? "completed" : "error"
+          },
+          {
+            id: "evidence",
+            name: "Evidence Agent",
+            description:
+              "Validates findings and checks whether claims are supported by evidence.",
+            status:
+              evidence.status === "completed" ? "completed" : "error"
+          },
+          {
+            id: "context-auditor",
+            name: "Context Auditor",
+            description:
+              "Extracts and stores project documentation claims for contextual analysis.",
+            status:
+              claims ? "completed" : "error"
+          }
+        ],
+
+        system: {
+          status: "ready",
+          message: "BOB analysis completed successfully."
+        }
+      });
+
+    } catch (error) {
+      console.error("BOB agent integration error:", error);
+
+      setDashboardData((prev) => ({
+        ...prev,
+        system: {
+          status: "error",
+          message: "Unable to load BOB agent results."
+        }
+      }));
+    }
+  };
+
+  loadAgentResults();
+}, []);
 
   const stats = dashboardData.stats || {};
   const consistency = dashboardData.consistency || {};
