@@ -1,296 +1,508 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
-const agents = [
-  {
-    name: "Documentation Consistency",
-    short: "DC",
-    status: "Completed",
-    detail: "Real report loaded",
+const emptyDashboardData = {
+  project: {
+    name: "",
+    organization: "",
   },
-  {
-    name: "Evidence Agent",
-    short: "EV",
-    status: "Completed",
-    detail: "Real report loaded",
+
+  stats: {
+    documentationFiles: 0,
+    checkableClaims: 0,
+    potentialInconsistencies: 0,
+    consistencyScore: null,
   },
-  {
-    name: "Context Auditor",
-    short: "CA",
-    status: "Waiting",
-    detail: "Not run",
+
+  documentation: {
+    files: [],
   },
-  {
-    name: "Code Reality",
-    short: "CR",
-    status: "Waiting",
-    detail: "Not run",
+
+  consistency: {
+    consistentClaims: 0,
+    inconsistentClaims: 0,
+    notEvaluated: 0,
+    score: null,
   },
-  {
-    name: "Contradiction Engine",
-    short: "CX",
-    status: "Waiting",
-    detail: "Awaiting inputs",
+
+  inconsistencies: [],
+
+  findings: [],
+
+  agents: [
+    {
+      id: "documentation-consistency",
+      name: "Documentation Consistency Agent",
+      description: "Extract and compare claims",
+      status: "pending",
+    },
+    {
+      id: "evidence",
+      name: "Evidence Agent",
+      description: "Find source evidence and validate",
+      status: "pending",
+    },
+    {
+      id: "context-auditor",
+      name: "Context Auditor",
+      description: "Check project setup and dependencies",
+      status: "pending",
+    },
+    {
+      id: "reporting",
+      name: "Reporting",
+      description: "Generate final findings and insights",
+      status: "pending",
+    },
+  ],
+
+  system: {
+    status: "waiting",
+    message: "",
   },
+};
+
+const navItems = [
+  { name: "Overview", icon: "fa-solid fa-house" },
+  { name: "Agent Results", icon: "fa-solid fa-robot" },
+  { name: "Findings", icon: "fa-solid fa-triangle-exclamation" },
+  { name: "Evidence", icon: "fa-solid fa-magnifying-glass" },
+  { name: "Documentation Map", icon: "fa-solid fa-diagram-project" },
+  { name: "System Health", icon: "fa-solid fa-shield-halved" },
+  { name: "About", icon: "fa-solid fa-circle-info" },
 ];
 
-function buildFindings(documentationReport, evidenceReport) {
-  const evidenceById = Object.fromEntries(
-    (evidenceReport?.findings || []).map((finding) => [
-      finding.finding_id,
-      finding,
-    ])
+function ShieldIcon() {
+  return (
+    <svg width="22" height="24" viewBox="0 0 22 24" fill="none">
+      <path
+        d="M11 2L2 5.5V11.5C2 16.6 5.8 21.3 11 22.5C16.2 21.3 20 16.6 20 11.5V5.5L11 2Z"
+        fill="rgba(255,255,255,0.18)"
+        stroke="white"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+
+      <path
+        d="M7.5 12.2L10.2 15L14.8 9.4"
+        stroke="white"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
-
-  return (documentationReport?.findings || []).map((finding) => {
-    const evidenceFinding = evidenceById[finding.finding_id];
-
-    return {
-      id: finding.finding_id,
-
-      severity: finding.severity
-        ? finding.severity.charAt(0).toUpperCase() +
-          finding.severity.slice(1)
-        : "Unknown",
-
-      confidence: evidenceFinding?.confidence
-        ? evidenceFinding.confidence.charAt(0).toUpperCase() +
-          evidenceFinding.confidence.slice(1)
-        : "Unverified",
-
-      title: finding.topic || "Untitled finding",
-
-      description: finding.explanation || "",
-
-      // Actual claim text
-      claimAText: finding.claim_a || "",
-
-      claimBText: finding.claim_b || "",
-
-      // Source locations
-      claimA: finding.location_a || "Unknown location",
-
-      claimB: finding.location_b || "Unknown location",
-
-      type: "Documentation contradiction",
-
-      evidence: evidenceFinding?.evidence || [],
-
-      conclusion: evidenceFinding?.conclusion || "",
-
-      evidenceConfidence: evidenceFinding?.confidence || "unknown",
-    };
-  });
 }
 
-function App() {
-  /* =========================================================
-     CORE UI STATE
-  ========================================================= */
+function CheckBadge() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+      <circle cx="7" cy="7" r="6" fill="#22d07a" />
 
+      <path
+        d="M4 7L6.2 9.2L10 5"
+        stroke="white"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function RobotMascot() {
+  return (
+    <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="robotBody" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#eaf2ff" />
+          <stop offset="100%" stopColor="#c8d8f5" />
+        </linearGradient>
+      </defs>
+
+      <line
+        x1="60"
+        y1="14"
+        x2="60"
+        y2="26"
+        stroke="#4c8dff"
+        strokeWidth="2.5"
+      />
+
+      <circle cx="60" cy="12" r="4" fill="#4c8dff" />
+
+      <rect
+        x="30"
+        y="26"
+        width="60"
+        height="50"
+        rx="12"
+        fill="url(#robotBody)"
+        stroke="#4c8dff"
+        strokeWidth="2"
+      />
+
+      <circle cx="48" cy="50" r="6" fill="#0a1426" />
+      <circle cx="72" cy="50" r="6" fill="#0a1426" />
+
+      <circle cx="50" cy="48" r="2" fill="#8fbaff" />
+      <circle cx="74" cy="48" r="2" fill="#8fbaff" />
+
+      <path
+        d="M50 62 Q60 70 70 62"
+        stroke="#4c8dff"
+        strokeWidth="2"
+        fill="none"
+        strokeLinecap="round"
+      />
+
+      <rect
+        x="38"
+        y="80"
+        width="44"
+        height="26"
+        rx="8"
+        fill="url(#robotBody)"
+        stroke="#4c8dff"
+        strokeWidth="2"
+      />
+
+      <circle cx="52" cy="93" r="2.5" fill="#4c8dff" />
+      <circle cx="60" cy="93" r="2.5" fill="#4c8dff" />
+      <circle cx="68" cy="93" r="2.5" fill="#4c8dff" />
+    </svg>
+  );
+}
+
+function formatPercentage(value) {
+  if (value === null || value === undefined) {
+    return "—";
+  }
+
+  return `${Number(value).toFixed(1)}%`;
+}
+
+function getFindingTypeClass(type) {
+  if (!type) return "missing";
+
+  const normalized = String(type).toLowerCase();
+
+  if (
+    normalized.includes("conflict") ||
+    normalized.includes("contradiction")
+  ) {
+    return "conflict";
+  }
+
+  if (
+    normalized.includes("outdated") ||
+    normalized.includes("stale")
+  ) {
+    return "outdated";
+  }
+
+  return "missing";
+}
+
+function getAgentStateClass(status) {
+  const normalized = String(status || "").toLowerCase();
+
+  if (
+    normalized === "complete" ||
+    normalized === "completed" ||
+    normalized === "success" ||
+    normalized === "done"
+  ) {
+    return "complete";
+  }
+
+  if (
+    normalized === "active" ||
+    normalized === "running" ||
+    normalized === "processing"
+  ) {
+    return "active";
+  }
+
+  return "pending";
+}
+
+function getAgentDisplayStatus(status) {
+  const normalized = String(status || "").toLowerCase();
+
+  if (
+    normalized === "complete" ||
+    normalized === "completed" ||
+    normalized === "success" ||
+    normalized === "done"
+  ) {
+    return "Complete";
+  }
+
+  if (
+    normalized === "active" ||
+    normalized === "running" ||
+    normalized === "processing"
+  ) {
+    return "Running";
+  }
+
+  return "Waiting";
+}
+
+/* =========================================================
+   APP
+========================================================= */
+
+function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [activeNav, setActiveNav] = useState("Overview");
 
-  const [contradictions, setContradictions] = useState([]);
-  const [selectedFinding, setSelectedFinding] = useState(null);
+  /*
+   * This is the ONLY dashboard state that should eventually
+   * be replaced by your backend/API response.
+   */
+  const [dashboardData, setDashboardData] = useState(
+    emptyDashboardData
+  );
 
-  /* =========================================================
-     REPORT LOADING STATE
-  ========================================================= */
-
-  const [reportsLoading, setReportsLoading] = useState(true);
-  const [reportsError, setReportsError] = useState(null);
-
-  /* =========================================================
-     SCAN STATE
-  ========================================================= */
-
-  const [scanRunning, setScanRunning] = useState(false);
-
-  /* =========================================================
-     FINDING CONTROLS
-  ========================================================= */
-
-  const [severityFilter, setSeverityFilter] = useState("All");
-  const [sortOrder, setSortOrder] = useState("newest");
-
-  /* =========================================================
-     ACTION PANEL STATE
-  ========================================================= */
-
-  const [sourceInspecting, setSourceInspecting] = useState(false);
-  const [repairProposal, setRepairProposal] = useState(false);
-
-  /* =========================================================
-     LOAD REAL AGENT REPORTS
-  ========================================================= */
+  /*
+   * ---------------------------------------------------------
+   * FUTURE API INTEGRATION
+   * ---------------------------------------------------------
+   *
+   * When your backend is ready, this is where the dashboard
+   * should receive the agent results.
+   *
+   * Example:
+   *
+   * useEffect(() => {
+   *   fetch("/api/dashboard")
+   *     .then((response) => response.json())
+   *     .then((data) => setDashboardData(data));
+   * }, []);
+   *
+   * For now, no fake data is loaded.
+   */
 
   useEffect(() => {
-    const loadReports = async () => {
-      try {
-        setReportsLoading(true);
-        setReportsError(null);
-
-        const [documentationResponse, evidenceResponse] =
-          await Promise.all([
-            fetch("/reports/documentation_consistency.json"),
-            fetch("/reports/evidence.json"),
-          ]);
-
-        if (!documentationResponse.ok) {
-          throw new Error(
-            `Documentation report could not be loaded (${documentationResponse.status})`
-          );
-        }
-
-        if (!evidenceResponse.ok) {
-          throw new Error(
-            `Evidence report could not be loaded (${evidenceResponse.status})`
-          );
-        }
-
-        const documentationReport =
-          await documentationResponse.json();
-
-        const evidenceReport =
-          await evidenceResponse.json();
-
-        const findings = buildFindings(
-          documentationReport,
-          evidenceReport
-        );
-
-        setContradictions(findings);
-
-        if (findings.length > 0) {
-          setSelectedFinding(findings[0]);
-        }
-      } catch (error) {
-        console.error(
-          "Failed to load Guardian reports:",
-          error
-        );
-
-        setReportsError(
-          error instanceof Error
-            ? error.message
-            : "Unknown report loading error"
-        );
-      } finally {
-        setReportsLoading(false);
-      }
-    };
-
-    loadReports();
+    // Backend/API integration will be added here.
   }, []);
 
+  const stats = dashboardData.stats || {};
+  const consistency = dashboardData.consistency || {};
+
+  const documentationFiles =
+    dashboardData.documentation?.files || [];
+
+  const findings = dashboardData.findings || [];
+
+  const inconsistencies =
+    dashboardData.inconsistencies || [];
+
+  const agents = dashboardData.agents || [];
+
   /* =========================================================
-     RUN SCAN BUTTON
+     STAT CARDS
   ========================================================= */
 
-  const runScan = () => {
-    setScanRunning(true);
+  const statCards = [
+    {
+      tone: "blue",
+      icon: "fa-solid fa-file-lines",
+      value: stats.documentationFiles ?? 0,
+      label: "Documentation Files",
+      sub: "Scanned by the system",
+    },
+    {
+      tone: "green",
+      icon: "fa-solid fa-clipboard-check",
+      value: stats.checkableClaims ?? 0,
+      label: "Checkable Claims",
+      sub: "Extracted by the agents",
+    },
+    {
+      tone: "red",
+      icon: "fa-solid fa-triangle-exclamation",
+      value: stats.potentialInconsistencies ?? 0,
+      label: "Potential Inconsistencies",
+      sub: "Detected across documentation",
+    },
+    {
+      tone: "teal",
+      icon: "fa-solid fa-circle-check",
+      value: formatPercentage(stats.consistencyScore),
+      label: "Documentation Consistency",
+      sub: "Calculated from evaluated claims",
+    },
+  ];
 
-    setTimeout(() => {
-      setScanRunning(false);
-    }, 1800);
+  /* =========================================================
+     DOCUMENTATION BAR CHART
+  ========================================================= */
+
+  const barData = documentationFiles.map((file) => ({
+    label:
+      file.name ||
+      file.path ||
+      "Unknown file",
+
+    claims:
+      Number(
+        file.claims ??
+          file.checkableClaims ??
+          file.claim_count ??
+          0
+      ),
+
+    issues:
+      Number(
+        file.issues ??
+          file.inconsistencies ??
+          file.issue_count ??
+          0
+      ),
+  }));
+
+  const maxBarValue = Math.max(
+    ...barData.map((d) =>
+      Math.max(d.claims, d.issues)
+    ),
+    1
+  );
+
+  /* =========================================================
+     CONSISTENCY SCORE
+  ========================================================= */
+
+  const scorePercent =
+    consistency.score ??
+    stats.consistencyScore ??
+    null;
+
+  const scoreRadius = 62;
+  const scoreCircumference =
+    2 * Math.PI * scoreRadius;
+
+  const scoreOffset =
+    scorePercent === null
+      ? scoreCircumference
+      : scoreCircumference -
+        (Number(scorePercent) / 100) *
+          scoreCircumference;
+
+  /* =========================================================
+     INCONSISTENCY TYPES
+  ========================================================= */
+
+  const inconsistencyCounts = {
+    conflict: 0,
+    outdated: 0,
+    missing: 0,
   };
 
-  /* =========================================================
-     COUNTS
-  ========================================================= */
-
-  const completedAgents = agents.filter(
-    (agent) => agent.status === "Completed"
-  ).length;
-
-  const highSeverityCount = contradictions.filter(
-    (finding) => finding.severity === "High"
-  ).length;
-
-  const mediumSeverityCount = contradictions.filter(
-    (finding) => finding.severity === "Medium"
-  ).length;
-
-  /* =========================================================
-     FILTER + SORT
-  ========================================================= */
-
-  const filteredContradictions = [...contradictions]
-    .filter((finding) => {
-      if (severityFilter === "All") {
-        return true;
-      }
-
-      return finding.severity === severityFilter;
-    })
-    .sort((a, b) => {
-      /*
-        The current reports do not contain timestamps.
-        Therefore this temporarily sorts by finding ID.
-        Once timestamps are added to the reports, this
-        can be changed to true chronological sorting.
-      */
-
-      if (sortOrder === "newest") {
-        return b.id.localeCompare(a.id);
-      }
-
-      return a.id.localeCompare(b.id);
-    });
-
-  /* =========================================================
-     FILTER HANDLER
-  ========================================================= */
-
-  const cycleSeverityFilter = () => {
-    const filters = ["All", "High", "Medium", "Low"];
-
-    const currentIndex = filters.indexOf(severityFilter);
-
-    const nextFilter =
-      filters[(currentIndex + 1) % filters.length];
-
-    setSeverityFilter(nextFilter);
-
-    /*
-      If the currently selected finding will disappear because
-      of the new filter, automatically select the first visible
-      finding.
-    */
-    const visibleFindings = contradictions.filter((finding) => {
-      if (nextFilter === "All") {
-        return true;
-      }
-
-      return finding.severity === nextFilter;
-    });
+  inconsistencies.forEach((item) => {
+    const type = String(
+      item.type || item.category || ""
+    ).toLowerCase();
 
     if (
-      selectedFinding &&
-      !visibleFindings.some(
-        (finding) => finding.id === selectedFinding.id
-      )
+      type.includes("conflict") ||
+      type.includes("contradiction")
     ) {
-      setSelectedFinding(visibleFindings[0] || null);
-      setSourceInspecting(false);
-      setRepairProposal(false);
+      inconsistencyCounts.conflict += 1;
+    } else if (
+      type.includes("outdated") ||
+      type.includes("stale")
+    ) {
+      inconsistencyCounts.outdated += 1;
+    } else {
+      inconsistencyCounts.missing += 1;
     }
+  });
+
+  const inconsistencyTypes = [
+    {
+      color: "red",
+      count: inconsistencyCounts.conflict,
+      title: "Conflicting Information",
+      description:
+        "Different claims about the same feature",
+    },
+    {
+      color: "yellow",
+      count: inconsistencyCounts.outdated,
+      title: "Outdated Information",
+      description:
+        "Information may no longer be accurate",
+    },
+    {
+      color: "purple",
+      count: inconsistencyCounts.missing,
+      title: "Missing Details",
+      description:
+        "Important information not documented",
+    },
+  ];
+
+  const inconsistencyTotal =
+    inconsistencyTypes.reduce(
+      (sum, item) => sum + item.count,
+      0
+    );
+
+  const donutColors = {
+    red: "#ff5c73",
+    yellow: "#f5b93b",
+    purple: "#a78bfa",
   };
 
+  const donutSegments = (() => {
+    const segments = [];
+    let offset = 0;
+
+    const radius = 62;
+    const circumference =
+      2 * Math.PI * radius;
+
+    if (inconsistencyTotal === 0) {
+      return segments;
+    }
+
+    inconsistencyTypes.forEach((item) => {
+      if (item.count === 0) return;
+
+      const fraction =
+        item.count / inconsistencyTotal;
+
+      segments.push({
+        ...item,
+        dash: fraction * circumference,
+        offset,
+        circumference,
+        radius,
+      });
+
+      offset += fraction * circumference;
+    });
+
+    return segments;
+  })();
+
   /* =========================================================
-     SELECT FINDING
+     TOP FINDINGS
   ========================================================= */
 
-  const selectFinding = (finding) => {
-    setSelectedFinding(finding);
-    setSourceInspecting(false);
-    setRepairProposal(false);
-  };
+  const topFindings = findings.slice(0, 3);
 
   /* =========================================================
-     RENDER
+     AGENT PIPELINE
   ========================================================= */
+
+  const pipelineStages =
+    agents.length > 0
+      ? agents
+      : emptyDashboardData.agents;
 
   return (
     <div
@@ -299,1103 +511,911 @@ function App() {
       }`}
     >
       {/* =====================================================
-          SIDEBAR
+          TOP HEADER
       ===================================================== */}
 
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-symbol">
-            <span></span>
-            <span></span>
-            <span></span>
+      <header className="app-header">
+        <div className="header-brand">
+          <div className="header-logo">
+            <i className="fa-solid fa-rocket"></i>
           </div>
 
-          <div className="brand-text">
-            <strong>guardian</strong>
-            <span>BOB context integrity</span>
-          </div>
-        </div>
+          <div className="header-brand-text">
+            <strong>
+              {dashboardData.project?.name ||
+                "GALAXIUM"}
+            </strong>
 
-        <div className="workspace">
-          <div className="workspace-label">
-            WORKSPACE
-          </div>
-
-          <div className="workspace-card">
-            <div className="repo-icon">
-              &lt;/&gt;
-            </div>
-
-            <div className="workspace-info">
-              <strong>bob-guardian</strong>
-              <span>feature/b-dashboard</span>
-            </div>
-
-            <button
-              className="dots-button"
-              type="button"
-              aria-label="Workspace options"
-            >
-              •••
-            </button>
+            <span>
+              {dashboardData.project?.organization ||
+                "TRAVELS"}
+            </span>
           </div>
         </div>
 
-        <nav className="navigation">
-          <div className="nav-label">
-            MONITOR
+        <div className="header-title">
+          <div className="header-shield">
+            <ShieldIcon />
           </div>
 
-          {[
-            {
-              name: "Overview",
-              icon: "⌂",
-            },
-            {
-              name: "Contradictions",
-              icon: "◈",
-              count: contradictions.length,
-            },
-            {
-              name: "Evidence",
-              icon: "⌕",
-            },
-            {
-              name: "Agents",
-              icon: "◇",
-            },
-          ].map((item) => (
-            <button
-              key={item.name}
-              type="button"
-              className={`nav-item ${
-                activeNav === item.name
-                  ? "active"
-                  : ""
-              }`}
-              onClick={() =>
-                setActiveNav(item.name)
-              }
-            >
-              <span className="nav-icon">
-                {item.icon}
-              </span>
+          <div className="header-title-text">
+            <h1>AI Documentation Guardian</h1>
 
-              <span>{item.name}</span>
+            <p>
+              Multi-Agent System for Documentation
+              Consistency &amp; Compliance
+            </p>
 
-              {item.count !== undefined && (
-                <span className="nav-count">
-                  {item.count}
-                </span>
-              )}
-            </button>
-          ))}
-
-          <div className="nav-label nav-label-spaced">
-            WORKFLOW
-          </div>
-
-          {[
-            {
-              name: "Context Repair",
-              icon: "✦",
-            },
-            {
-              name: "Scan History",
-              icon: "◷",
-            },
-          ].map((item) => (
-            <button
-              key={item.name}
-              type="button"
-              className={`nav-item ${
-                activeNav === item.name
-                  ? "active"
-                  : ""
-              }`}
-              onClick={() =>
-                setActiveNav(item.name)
-              }
-            >
-              <span className="nav-icon">
-                {item.icon}
-              </span>
-
-              <span>{item.name}</span>
-            </button>
-          ))}
-        </nav>
-
-        <div className="sidebar-footer">
-          <div className="connection-status">
-            <span className="status-pulse"></span>
-            Guardian connected
-          </div>
-
-          <div className="sidebar-footer-row">
-            <span>BOB Guardian v0.1</span>
+            <small>
+              Powered by IBM watsonx + Local LLM +
+              ChromaDB
+            </small>
           </div>
         </div>
-      </aside>
+
+        <div className="header-badge">
+          <div className="header-badge-text">
+            <strong>IBM Hackathon</strong>
+            <span>
+              Responsible AI for Real-World Impact
+            </span>
+          </div>
+        </div>
+      </header>
 
       {/* =====================================================
-          MAIN
+          BODY
       ===================================================== */}
 
-      <main className="main">
-        {/* TOPBAR */}
+      <div className="app-body">
 
-        <header className="topbar">
-          <div className="breadcrumb">
-            <span>Workspace</span>
+        {/* ===================================================
+            SIDE NAV
+        =================================================== */}
 
-            <span className="breadcrumb-arrow">
-              /
-            </span>
-
-            <strong>{activeNav}</strong>
-          </div>
-
-          <div className="top-actions">
-            <div className="last-scan">
-              <span className="live-dot"></span>
-              Reports{" "}
-              <strong>
-                {reportsLoading
-                  ? "loading"
-                  : reportsError
-                  ? "error"
-                  : "loaded"}
-              </strong>
-            </div>
-
+        <nav className="side-nav">
+          {navItems.map((item) => (
             <button
+              key={item.name}
               type="button"
-              className={`scan-button ${
-                scanRunning ? "scanning" : ""
+              className={`side-nav-item ${
+                activeNav === item.name
+                  ? "active"
+                  : ""
               }`}
-              onClick={runScan}
-              disabled={scanRunning}
+              onClick={() =>
+                setActiveNav(item.name)
+              }
             >
-              <span className="scan-icon">
-                {scanRunning ? "◌" : "↻"}
+              <span className="side-nav-icon">
+                <i className={item.icon}></i>
               </span>
 
-              {scanRunning
-                ? "Scanning..."
-                : "Run Guardian Scan"}
+              <span>{item.name}</span>
             </button>
+          ))}
 
+          {/* Mascot */}
+
+          <div className="mascot-card">
+            <div className="mascot-bubble">
+              Keeping your documentation accurate,
+              consistent and trustworthy!
+            </div>
+
+            <div className="mascot-avatar">
+              <RobotMascot />
+            </div>
+
+            <ul className="mascot-list">
+              <li>
+                <CheckBadge />
+                <span>
+                  Scans documentation
+                </span>
+              </li>
+
+              <li>
+                <CheckBadge />
+                <span>
+                  Finds inconsistencies
+                </span>
+              </li>
+
+              <li>
+                <CheckBadge />
+                <span>
+                  Provides evidence
+                </span>
+              </li>
+
+              <li>
+                <CheckBadge />
+                <span>
+                  Supports informed review
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Theme */}
+
+          <div className="side-nav-theme">
             <button
               type="button"
-              className="theme-toggle"
+              className="theme-toggle-btn"
               onClick={() =>
                 setDarkMode(!darkMode)
               }
-              aria-label="Toggle theme"
               title={
                 darkMode
                   ? "Switch to light theme"
                   : "Switch to dark theme"
               }
             >
-              {darkMode ? "☼" : "☾"}
+              <i
+                className={
+                  darkMode
+                    ? "fa-solid fa-sun"
+                    : "fa-solid fa-moon"
+                }
+              ></i>
+
+              <span>
+                {darkMode
+                  ? "Light mode"
+                  : "Dark mode"}
+              </span>
             </button>
           </div>
-        </header>
-
-        {/* PAGE HEADING */}
-
-        <section className="page-heading">
-          <div>
-            <div className="heading-kicker">
-              CONTEXT INTEGRITY
-            </div>
-
-            <h1>Repository health</h1>
-
-            <p>
-              Verify that BOB's persistent context
-              still matches the reality of your
-              codebase.
-            </p>
-          </div>
-
-          <div className="branch-pill">
-            <span className="branch-symbol">
-              ⑂
-            </span>
-
-            feature/b-dashboard
-          </div>
-        </section>
+        </nav>
 
         {/* ===================================================
-            HERO
+            MAIN
         =================================================== */}
 
-        <section className="hero-grid">
-          {/* INTEGRITY CARD */}
+        <main className="app-main">
 
-          <div className="integrity-card">
-            <div className="card-header">
-              <div>
-                <span className="card-label">
-                  CONTEXT INTEGRITY
-                </span>
+          {/* =================================================
+              STAT STRIP
+          ================================================= */}
 
-                <h2>
-                  {reportsLoading
-                    ? "Loading reports"
-                    : reportsError
-                    ? "Report error"
-                    : contradictions.length > 0
-                    ? "Needs attention"
-                    : "No contradictions"}
-                </h2>
-              </div>
-
-              <div className="score-meta">
-                <span className="score-change">
-                  LIVE
-                </span>
-
-                <span>
-                  from agent reports
-                </span>
-              </div>
-            </div>
-
-            <div className="integrity-body">
-              <div className="score-visual">
-                <svg
-                  className="score-ring"
-                  viewBox="0 0 200 200"
-                >
-                  <circle
-                    className="ring-background"
-                    cx="100"
-                    cy="100"
-                    r="82"
-                  />
-
-                  <circle
-                    className="ring-progress"
-                    cx="100"
-                    cy="100"
-                    r="82"
-                  />
-                </svg>
-
-                <div className="score-number">
-                  <strong>
-                    {reportsLoading
-                      ? "—"
-                      : contradictions.length}
-                  </strong>
-
-                  <span>findings</span>
-                </div>
-              </div>
-
-              <div className="score-explanation">
-                <div className="status-line">
-                  <span className="warning-dot"></span>
-
-                  {reportsError
-                    ? "Report loading failed"
-                    : contradictions.length > 0
-                    ? "Context drift detected"
-                    : "No contradictions detected"}
-                </div>
-
-                <p>
-                  Guardian found{" "}
-                  <strong>
-                    {contradictions.length}{" "}
-                    contradiction
-                    {contradictions.length === 1
-                      ? ""
-                      : "s"}
-                  </strong>{" "}
-                  in the currently loaded agent
-                  reports.
-                </p>
-
-                <div className="score-breakdown">
-                  <div>
-                    <span>Findings</span>
-                    <strong>
-                      {contradictions.length}
-                    </strong>
-                  </div>
-
-                  <div>
-                    <span>High</span>
-                    <strong>
-                      {highSeverityCount}
-                    </strong>
-                  </div>
-
-                  <div>
-                    <span>Medium</span>
-                    <strong>
-                      {mediumSeverityCount}
-                    </strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="card-footer">
-              <span>
-                Source:{" "}
-                <strong>
-                  Documentation + Evidence reports
-                </strong>
-              </span>
-
-              <button
-                type="button"
-                onClick={() =>
-                  setActiveNav("Evidence")
-                }
+          <section className="stat-strip">
+            {statCards.map((stat) => (
+              <div
+                key={stat.label}
+                className={`stat-card ${stat.tone}`}
               >
-                View evidence →
-              </button>
-            </div>
-          </div>
+                <div className="stat-icon">
+                  <i className={stat.icon}></i>
+                </div>
 
-          {/* PIPELINE CARD */}
+                <div className="stat-body">
+                  <span className="stat-value">
+                    {stat.value}
+                  </span>
 
-          <div className="activity-card">
-            <div className="card-header">
-              <div>
-                <span className="card-label">
-                  SCAN ACTIVITY
-                </span>
+                  <span className="stat-label">
+                    {stat.label}
+                  </span>
 
-                <h2>Agent pipeline</h2>
-              </div>
-
-              <span className="pipeline-status">
-                {completedAgents} /{" "}
-                {agents.length} complete
-              </span>
-            </div>
-
-            <div className="pipeline">
-              {agents.map((agent, index) => (
-                <div
-                  className="pipeline-row"
-                  key={agent.name}
-                >
-                  <div className="pipeline-marker">
-                    <span
-                      className={
-                        agent.status === "Completed"
-                          ? "marker-complete"
-                          : "marker-waiting"
-                      }
-                    >
-                      {agent.status === "Completed"
-                        ? "✓"
-                        : index === 4
-                        ? "◇"
-                        : "•"}
-                    </span>
-
-                    {index !==
-                      agents.length - 1 && (
-                      <i
-                        className={
-                          agent.status ===
-                          "Completed"
-                            ? "connector-complete"
-                            : ""
-                        }
-                      ></i>
-                    )}
-                  </div>
-
-                  <div className="pipeline-agent">
-                    <strong>
-                      {agent.name}
-                    </strong>
-
-                    <span>
-                      {agent.detail}
-                    </span>
-                  </div>
-
-                  <span
-                    className={`pipeline-state ${
-                      agent.status ===
-                      "Completed"
-                        ? "complete"
-                        : "waiting"
-                    }`}
-                  >
-                    {agent.status === "Completed"
-                      ? "done"
-                      : "waiting"}
+                  <span className="stat-sub">
+                    {stat.sub}
                   </span>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ===================================================
-            FINDINGS
-        =================================================== */}
-
-        <section className="findings-section">
-          <div className="section-heading">
-            <div>
-              <div className="heading-kicker">
-                DETECTION RESULTS
               </div>
+            ))}
+          </section>
 
-              <h2>
-                Context contradictions
-              </h2>
-            </div>
+          {/* =================================================
+              ROW 2
+          ================================================= */}
 
-            <div className="finding-tools">
-              <button
-                type="button"
-                className="filter"
-                onClick={cycleSeverityFilter}
-              >
-                {severityFilter === "All"
-                  ? "All severity"
-                  : `${severityFilter} severity`}
+          <section className="dash-row row-2">
 
-                <span>⌄</span>
-              </button>
+            {/* DOCUMENTATION OVERVIEW */}
 
-              <button
-                type="button"
-                className="filter"
-                onClick={() =>
-                  setSortOrder(
-                    sortOrder === "newest"
-                      ? "oldest"
-                      : "newest"
-                  )
-                }
-              >
-                {sortOrder === "newest"
-                  ? "Newest first"
-                  : "Oldest first"}
+            <div className="panel">
+              <div className="panel-head">
+                <div className="panel-head-left">
 
-                <span>⌄</span>
-              </button>
-            </div>
-          </div>
+                  <div className="panel-head-icon">
+                    <i className="fa-solid fa-chart-column"></i>
+                  </div>
 
-          {/* LOADING */}
+                  <div>
+                    <h2>
+                      Documentation Overview
+                    </h2>
 
-          {reportsLoading && (
-            <div className="empty-panel">
-              <div className="empty-icon">
-                ⌕
-              </div>
+                    <p>
+                      Files scanned and claims
+                      extracted by the
+                      Documentation Consistency
+                      Agent
+                    </p>
+                  </div>
 
-              <h3>
-                Loading Guardian reports
-              </h3>
-
-              <p>
-                Reading the latest Documentation
-                Consistency and Evidence Agent
-                results.
-              </p>
-            </div>
-          )}
-
-          {/* ERROR */}
-
-          {reportsError && (
-            <div className="empty-panel">
-              <div className="empty-icon">
-                !
-              </div>
-
-              <h3>
-                Could not load reports
-              </h3>
-
-              <p>{reportsError}</p>
-            </div>
-          )}
-
-          {/* NO FINDINGS */}
-
-          {!reportsLoading &&
-            !reportsError &&
-            contradictions.length === 0 && (
-              <div className="empty-panel">
-                <div className="empty-icon">
-                  ✓
                 </div>
-
-                <h3>
-                  No contradictions found
-                </h3>
-
-                <p>
-                  The loaded Guardian reports
-                  contain no contradiction
-                  findings.
-                </p>
               </div>
-            )}
 
-          {/* FINDINGS */}
+              <div className="chart-legend">
+                <span className="legend-item">
+                  <span className="legend-swatch blue" />
+                  Checkable Claims
+                </span>
 
-          {!reportsLoading &&
-            !reportsError &&
-            contradictions.length > 0 && (
-              <div className="findings-layout">
-                <div className="findings-list">
-                  {filteredContradictions.length ===
-                  0 ? (
-                    <div className="empty-panel">
-                      <div className="empty-icon">
-                        ⌕
-                      </div>
+                <span className="legend-item">
+                  <span className="legend-swatch red" />
+                  Potential Issues
+                </span>
+              </div>
 
-                      <h3>
-                        No matching findings
-                      </h3>
+              {barData.length === 0 ? (
+                <div className="empty-state">
+                  <i className="fa-solid fa-chart-column"></i>
 
-                      <p>
-                        No findings match the
-                        selected severity filter.
-                      </p>
+                  <strong>
+                    Waiting for documentation scan
+                  </strong>
+
+                  <span>
+                    File and claim data will appear
+                    here when the agents run.
+                  </span>
+                </div>
+              ) : (
+                <>
+                  <div className="bar-chart">
+                    <div className="chart-y-axis">
+                      <span>
+                        {Math.ceil(
+                          maxBarValue
+                        )}
+                      </span>
+
+                      <span>
+                        {Math.ceil(
+                          maxBarValue * 0.66
+                        )}
+                      </span>
+
+                      <span>
+                        {Math.ceil(
+                          maxBarValue * 0.33
+                        )}
+                      </span>
+
+                      <span>0</span>
                     </div>
-                  ) : (
-                    filteredContradictions.map(
-                      (item) => (
-                        <button
-                          type="button"
-                          className={`finding-card ${
-                            selectedFinding?.id ===
-                            item.id
-                              ? "selected"
-                              : ""
-                          }`}
-                          key={item.id}
-                          onClick={() =>
-                            selectFinding(item)
-                          }
-                        >
-                          <div className="finding-top">
-                            <span className="finding-id">
-                              {item.id}
-                            </span>
 
-                            <span
-                              className={`severity ${item.severity.toLowerCase()}`}
+                    <div className="chart-bars">
+                      <div className="chart-grid">
+                        <span />
+                        <span />
+                        <span />
+                        <span />
+                      </div>
+
+                      {barData.map((group) => (
+                        <div
+                          className="bar-group"
+                          key={group.label}
+                        >
+                          <div className="bar-pair">
+
+                            <div
+                              className="bar blue"
+                              style={{
+                                height: `${
+                                  (group.claims /
+                                    maxBarValue) *
+                                  100
+                                }%`,
+                              }}
                             >
-                              <i></i>
-                              {item.severity}
-                            </span>
-                          </div>
+                              {group.claims > 0 && (
+                                <span className="bar-label">
+                                  {group.claims}
+                                </span>
+                              )}
+                            </div>
 
-                          <h3>
-                            {item.title}
-                          </h3>
-
-                          <p>
-                            {item.description}
-                          </p>
-
-                          <div className="finding-bottom">
-                            <span className="finding-type">
-                              {item.type}
-                            </span>
-
-                            <span className="finding-confidence">
-                              {item.confidence}{" "}
-                              confidence
-                            </span>
-
-                            <span className="finding-arrow">
-                              →
-                            </span>
-                          </div>
-                        </button>
-                      )
-                    )
-                  )}
-                </div>
-
-                {/* =================================================
-                    EVIDENCE PANEL
-                ================================================= */}
-
-                <div className="evidence-panel">
-                  {selectedFinding ? (
-                    <>
-                      <div className="panel-top">
-                        <div>
-                          <span className="card-label">
-                            FINDING{" "}
-                            {selectedFinding.id}
-                          </span>
-
-                          <h3>
-                            {selectedFinding.title}
-                          </h3>
-                        </div>
-
-                        <button
-                          type="button"
-                          className="close-panel"
-                          onClick={() => {
-                            setSelectedFinding(
-                              null
-                            );
-                            setSourceInspecting(
-                              false
-                            );
-                            setRepairProposal(
-                              false
-                            );
-                          }}
-                          aria-label="Close finding"
-                        >
-                          ×
-                        </button>
-                      </div>
-
-                      {/* WHY */}
-
-                      <div className="panel-section">
-                        <span className="panel-label">
-                          WHY GUARDIAN FLAGGED THIS
-                        </span>
-
-                        <p>
-                          {
-                            selectedFinding.description
-                          }
-                        </p>
-                      </div>
-
-                      {/* CLAIM COMPARISON */}
-
-                      <div className="claim-comparison">
-                        <div className="claim">
-                          <div className="claim-heading">
-                            <span className="claim-badge">
-                              A
-                            </span>
-
-                            <span>
-                              Persistent context
-                            </span>
-                          </div>
-
-                          <code>
-                            {
-                              selectedFinding.claimAText
-                            }
-                          </code>
-
-                          <p>
-                            Source:{" "}
-                            {
-                              selectedFinding.claimA
-                            }
-                          </p>
-                        </div>
-
-                        <div className="comparison-line">
-                          <span>
-                            CONTRADICTS
-                          </span>
-                        </div>
-
-                        <div className="claim">
-                          <div className="claim-heading">
-                            <span className="claim-badge reality">
-                              B
-                            </span>
-
-                            <span>
-                              Repository reality
-                            </span>
-                          </div>
-
-                          <code>
-                            {
-                              selectedFinding.claimBText
-                            }
-                          </code>
-
-                          <p>
-                            Source:{" "}
-                            {
-                              selectedFinding.claimB
-                            }
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* VERIFIED EVIDENCE */}
-
-                      <div className="panel-section">
-                        <span className="panel-label">
-                          VERIFIED EVIDENCE
-                        </span>
-
-                        <div className="real-evidence-list">
-                          {selectedFinding.evidence
-                            .length === 0 ? (
-                            <p>
-                              No evidence items
-                              were included in
-                              the Evidence Agent
-                              report.
-                            </p>
-                          ) : (
-                            selectedFinding.evidence.map(
-                              (
-                                evidence,
-                                index
-                              ) => (
-                                <div
-                                  className="real-evidence-item"
-                                  key={`${selectedFinding.id}-${index}`}
-                                >
-                                  <div className="evidence-meta">
-                                    <code>
-                                      {
-                                        evidence.file
-                                      }
-
-                                      {evidence.line_start
-                                        ? `:${evidence.line_start}`
-                                        : ""}
-
-                                      {evidence.line_end &&
-                                      evidence.line_end !==
-                                        evidence.line_start
-                                        ? `-${evidence.line_end}`
-                                        : ""}
-                                    </code>
-
-                                    <span>
-                                      {
-                                        evidence.strength
-                                      }{" "}
-                                      strength
-                                    </span>
-                                  </div>
-
-                                  <p>
-                                    {
-                                      evidence.excerpt
-                                    }
-                                  </p>
-
-                                  <small>
-                                    {
-                                      evidence.source_type
-                                    }
-                                  </small>
-                                </div>
-                              )
-                            )
-                          )}
-                        </div>
-                      </div>
-
-                      {/* CONCLUSION */}
-
-                      <div className="panel-section">
-                        <span className="panel-label">
-                          AGENT CONCLUSION
-                        </span>
-
-                        <p>
-                          {
-                            selectedFinding.conclusion
-                          }
-                        </p>
-                      </div>
-
-                      {/* ACTION BUTTONS */}
-
-                      <div className="panel-actions">
-                        <button
-                          type="button"
-                          className="secondary-action"
-                          onClick={() => {
-                            setSourceInspecting(
-                              !sourceInspecting
-                            );
-                            setRepairProposal(
-                              false
-                            );
-                          }}
-                        >
-                          {sourceInspecting
-                            ? "Hide source"
-                            : "Inspect source"}
-                        </button>
-
-                        <button
-                          type="button"
-                          className="primary-action"
-                          onClick={() => {
-                            setRepairProposal(
-                              !repairProposal
-                            );
-                            setSourceInspecting(
-                              false
-                            );
-                          }}
-                        >
-                          {repairProposal
-                            ? "Hide proposal"
-                            : "Propose context repair"}
-                        </button>
-                      </div>
-
-                      {/* =================================================
-                          SOURCE INSPECTION
-                      ================================================= */}
-
-                      {sourceInspecting && (
-                        <div className="action-result">
-                          <div className="action-result-header">
-                            <span className="panel-label">
-                              SOURCE INSPECTION
-                            </span>
-
-                            <button
-                              type="button"
-                              className="close-panel"
-                              onClick={() =>
-                                setSourceInspecting(
-                                  false
-                                )
-                              }
-                              aria-label="Close source inspection"
+                            <div
+                              className="bar red"
+                              style={{
+                                height: `${
+                                  (group.issues /
+                                    maxBarValue) *
+                                  100
+                                }%`,
+                              }}
                             >
-                              ×
-                            </button>
+                              {group.issues > 0 && (
+                                <span className="bar-label">
+                                  {group.issues}
+                                </span>
+                              )}
+                            </div>
+
                           </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
-                          <p>
-                            Guardian verified this
-                            finding using the
-                            following repository
-                            evidence:
-                          </p>
+                  <div
+                    className="bar-chart"
+                    style={{
+                      minHeight: 0,
+                      paddingTop: 0,
+                      paddingBottom: 14,
+                    }}
+                  >
+                    <div />
 
-                          <div className="source-list">
-                            {selectedFinding.evidence.map(
-                              (
-                                evidence,
-                                index
-                              ) => (
-                                <div
-                                  className="source-item"
-                                  key={`source-${index}`}
-                                >
-                                  <code>
-                                    {
-                                      evidence.file
-                                    }
-
-                                    {evidence.line_start
-                                      ? `:${evidence.line_start}`
-                                      : ""}
-
-                                    {evidence.line_end &&
-                                    evidence.line_end !==
-                                      evidence.line_start
-                                      ? `-${evidence.line_end}`
-                                      : ""}
-                                  </code>
-
-                                  <p>
-                                    {
-                                      evidence.excerpt
-                                    }
-                                  </p>
-
-                                  <span>
-                                    {
-                                      evidence.source_type
-                                    }{" "}
-                                    ·{" "}
-                                    {
-                                      evidence.strength
-                                    }{" "}
-                                    evidence
-                                  </span>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: `repeat(${barData.length}, minmax(0, 1fr))`,
+                        gap: 8,
+                      }}
+                    >
+                      {barData.map((group) => (
+                        <div
+                          className="bar-x-label"
+                          key={`${group.label}-x`}
+                        >
+                          {String(group.label)
+                            .split("\n")
+                            .map(
+                              (line, i) => (
+                                <div key={i}>
+                                  {line}
                                 </div>
                               )
                             )}
-                          </div>
                         </div>
-                      )}
-
-                      {/* =================================================
-                          REPAIR PROPOSAL
-                      ================================================= */}
-
-                      {repairProposal && (
-                        <div className="action-result repair-result">
-                          <div className="action-result-header">
-                            <span className="panel-label">
-                              PROPOSED CONTEXT REPAIR
-                            </span>
-
-                            <button
-                              type="button"
-                              className="close-panel"
-                              onClick={() =>
-                                setRepairProposal(
-                                  false
-                                )
-                              }
-                              aria-label="Close repair proposal"
-                            >
-                              ×
-                            </button>
-                          </div>
-
-                          <p>
-                            Guardian has identified
-                            a stale context statement.
-                            The following change is
-                            proposed for human review.
-                          </p>
-
-                          <div className="repair-comparison">
-                            <div className="repair-block current">
-                              <span>
-                                CURRENT CONTEXT
-                              </span>
-
-                              <code>
-                                {
-                                  selectedFinding.claimAText
-                                }
-                              </code>
-
-                              <p>
-                                Source:{" "}
-                                {
-                                  selectedFinding.claimA
-                                }
-                              </p>
-                            </div>
-
-                            <div className="repair-arrow">
-                              →
-                            </div>
-
-                            <div className="repair-block proposed">
-                              <span>
-                                PROPOSED CHANGE
-                              </span>
-
-                              <code>
-                                Update the stale
-                                repository description
-                                so BOB's persistent
-                                context reflects the
-                                currently verified
-                                repository structure.
-                              </code>
-                            </div>
-                          </div>
-
-                          <div className="repair-warning">
-                            <strong>
-                              Human approval required.
-                            </strong>
-
-                            <span>
-                              Guardian will not modify
-                              project context
-                              automatically.
-                            </span>
-                          </div>
-
-                          <div className="repair-actions">
-                            <button
-                              type="button"
-                              className="secondary-action"
-                              onClick={() =>
-                                setRepairProposal(
-                                  false
-                                )
-                              }
-                            >
-                              Cancel
-                            </button>
-
-                            <button
-                              type="button"
-                              className="primary-action"
-                              onClick={() =>
-                                setRepairProposal(
-                                  false
-                                )
-                              }
-                            >
-                              Mark for review
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="empty-panel">
-                      <div className="empty-icon">
-                        ⌕
-                      </div>
-
-                      <h3>
-                        Select a finding
-                      </h3>
-
-                      <p>
-                        Choose a contradiction to
-                        inspect its evidence, source
-                        locations and proposed repair.
-                      </p>
+                      ))}
                     </div>
-                  )}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* CONSISTENCY SCORE */}
+
+            <div className="panel">
+              <div className="panel-head">
+
+                <div className="panel-head-left">
+
+                  <div className="panel-head-icon">
+                    <i className="fa-solid fa-magnifying-glass-chart"></i>
+                  </div>
+
+                  <div>
+                    <h2>
+                      Consistency Score
+                    </h2>
+
+                    <p>
+                      How aligned the documentation
+                      is across files
+                    </p>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div className="score-panel-body">
+
+                <div className="score-ring-wrap">
+
+                  <svg
+                    className="score-ring-svg"
+                    viewBox="0 0 160 160"
+                  >
+                    <defs>
+                      <linearGradient
+                        id="scoreGradient"
+                        x1="0"
+                        y1="0"
+                        x2="1"
+                        y2="1"
+                      >
+                        <stop
+                          offset="0%"
+                          stopColor="#22d07a"
+                        />
+
+                        <stop
+                          offset="100%"
+                          stopColor="#119d5a"
+                        />
+                      </linearGradient>
+                    </defs>
+
+                    <circle
+                      className="score-ring-bg"
+                      cx="80"
+                      cy="80"
+                      r={scoreRadius}
+                    />
+
+                    <circle
+                      className="score-ring-fg"
+                      cx="80"
+                      cy="80"
+                      r={scoreRadius}
+                      strokeDasharray={
+                        scoreCircumference
+                      }
+                      strokeDashoffset={
+                        scoreOffset
+                      }
+                    />
+                  </svg>
+
+                  <div className="score-ring-center">
+                    <strong>
+                      {formatPercentage(
+                        scorePercent
+                      )}
+                    </strong>
+
+                    <span>
+                      {scorePercent === null
+                        ? "Awaiting data"
+                        : "Consistent"}
+                    </span>
+                  </div>
+
+                </div>
+
+                <div className="score-legend">
+
+                  <div className="score-legend-item">
+                    <span className="dot green" />
+
+                    <span className="label">
+                      Consistent Claims
+                    </span>
+
+                    <span className="value">
+                      {consistency.consistentClaims ??
+                        0}
+                    </span>
+                  </div>
+
+                  <div className="score-legend-item">
+                    <span className="dot red" />
+
+                    <span className="label">
+                      Potential Issues
+                    </span>
+
+                    <span className="value">
+                      {consistency.inconsistentClaims ??
+                        0}
+                    </span>
+                  </div>
+
+                  <div className="score-legend-item">
+                    <span className="dot grey" />
+
+                    <span className="label">
+                      Not Evaluated
+                    </span>
+
+                    <span className="value">
+                      {consistency.notEvaluated ??
+                        0}
+                    </span>
+                  </div>
+
+                  <p className="score-note">
+                    {scorePercent === null
+                      ? "The consistency score will appear after the agents evaluate the documentation."
+                      : `${consistency.inconsistentClaims ?? 0} areas require review.`}
+                  </p>
+
                 </div>
               </div>
-            )}
-        </section>
+            </div>
+          </section>
 
-        {/* FOOTER */}
+          {/* =================================================
+              ROW 3
+          ================================================= */}
 
-        <footer className="main-footer">
-          <span>
-            BOB Guardian · Context verification
-            layer
-          </span>
+          <section className="dash-row row-3">
 
-          <span>
-            Human approval required for all
-            context changes
-          </span>
-        </footer>
-      </main>
+            {/* INCONSISTENCY TYPES */}
+
+            <div className="panel">
+
+              <div className="panel-head">
+
+                <div className="panel-head-left">
+
+                  <div className="panel-head-icon">
+                    <i className="fa-solid fa-chart-pie"></i>
+                  </div>
+
+                  <div>
+                    <h2>
+                      Inconsistency Types
+                    </h2>
+
+                    <p>
+                      Categories of issues found
+                      by the agents
+                    </p>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div className="donut-panel-body">
+
+                <div className="donut-wrap">
+
+                  <svg
+                    viewBox="0 0 160 160"
+                    width="100%"
+                    height="100%"
+                  >
+                    <circle
+                      cx="80"
+                      cy="80"
+                      r="62"
+                      fill="none"
+                      stroke="var(--surface-3)"
+                      strokeWidth="20"
+                    />
+
+                    {donutSegments.map(
+                      (seg, i) => (
+                        <circle
+                          key={i}
+                          cx="80"
+                          cy="80"
+                          r={seg.radius}
+                          fill="none"
+                          stroke={
+                            donutColors[
+                              seg.color
+                            ]
+                          }
+                          strokeWidth="20"
+                          strokeDasharray={`${seg.dash} ${
+                            seg.circumference -
+                            seg.dash
+                          }`}
+                          strokeDashoffset={
+                            -seg.offset
+                          }
+                          transform="rotate(-90 80 80)"
+                        />
+                      )
+                    )}
+                  </svg>
+
+                  <div className="donut-center">
+
+                    <strong>
+                      {inconsistencyTotal}
+                    </strong>
+
+                    <span>
+                      Total Issues
+                    </span>
+
+                  </div>
+
+                </div>
+
+                <div className="donut-legend">
+
+                  {inconsistencyTypes.map(
+                    (item) => (
+                      <div
+                        className="donut-legend-item"
+                        key={item.title}
+                      >
+                        <span
+                          className={`swatch ${item.color}`}
+                        />
+
+                        <div className="legend-body">
+
+                          <span className="legend-title">
+                            {item.title}
+                          </span>
+
+                          <span className="legend-desc">
+                            {item.description}
+                          </span>
+
+                        </div>
+
+                        <span className="legend-count">
+                          {item.count}
+                        </span>
+                      </div>
+                    )
+                  )}
+
+                </div>
+
+              </div>
+            </div>
+
+            {/* TOP FINDINGS */}
+
+            <div className="panel">
+
+              <div className="panel-head">
+
+                <div className="panel-head-left">
+
+                  <div className="panel-head-icon">
+                    <i className="fa-solid fa-thumbtack"></i>
+                  </div>
+
+                  <div>
+                    <h2>
+                      Top Findings
+                    </h2>
+
+                    <p>
+                      Key inconsistencies found
+                      by the agents
+                    </p>
+                  </div>
+
+                </div>
+
+                <button
+                  type="button"
+                  className="panel-link"
+                  onClick={() =>
+                    setActiveNav(
+                      "Findings"
+                    )
+                  }
+                >
+                  View All Findings{" "}
+                  <i className="fa-solid fa-arrow-right"></i>
+                </button>
+
+              </div>
+
+              <div className="panel-body tight">
+
+                {topFindings.length === 0 ? (
+                  <div className="empty-state compact">
+
+                    <i className="fa-solid fa-circle-check"></i>
+
+                    <strong>
+                      No findings yet
+                    </strong>
+
+                    <span>
+                      Findings generated by the
+                      agents will appear here.
+                    </span>
+
+                  </div>
+                ) : (
+                  <table className="findings-table">
+
+                    <thead>
+                      <tr>
+                        <th className="col-index">
+                          #
+                        </th>
+
+                        <th>
+                          Issue
+                        </th>
+
+                        <th className="col-narrow">
+                          Type
+                        </th>
+
+                        <th className="col-narrow">
+                          Confidence
+                        </th>
+
+                        <th className="col-status">
+                          Status
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+
+                      {topFindings.map(
+                        (row, index) => (
+                          <tr
+                            key={
+                              row.id ||
+                              row.finding_id ||
+                              index
+                            }
+                          >
+
+                            <td className="col-index">
+                              {row.id ||
+                                row.finding_id ||
+                                index + 1}
+                            </td>
+
+                            <td className="col-issue">
+                              {row.issue ||
+                                row.title ||
+                                row.description ||
+                                "Finding detected"}
+                            </td>
+
+                            <td>
+                              <span
+                                className={`type-pill ${getFindingTypeClass(
+                                  row.type ||
+                                    row.category
+                                )}`}
+                              >
+                                {row.type ||
+                                  row.category ||
+                                  "Issue"}
+                              </span>
+                            </td>
+
+                            <td>
+                              {row.confidence !==
+                                undefined &&
+                              row.confidence !==
+                                null
+                                ? `${Number(
+                                    row.confidence
+                                  ) > 1
+                                    ? Number(
+                                        row.confidence
+                                      ).toFixed(
+                                        0
+                                      )
+                                    : (
+                                        Number(
+                                          row.confidence
+                                        ) *
+                                        100
+                                      ).toFixed(
+                                        0
+                                      )}%`
+                                : "—"}
+                            </td>
+
+                            <td>
+                              <span className="status-pill open">
+                                {row.status ||
+                                  "Open"}
+                              </span>
+                            </td>
+
+                          </tr>
+                        )
+                      )}
+
+                    </tbody>
+
+                  </table>
+                )}
+
+              </div>
+            </div>
+
+          </section>
+
+          {/* =================================================
+              AGENT PIPELINE
+          ================================================= */}
+
+          <section className="pipeline-strip">
+
+            <div className="pipeline-strip-head">
+
+              <h2>
+                Agent Pipeline
+              </h2>
+
+              <p>
+                Multi-agent workflow for
+                documentation governance
+              </p>
+
+            </div>
+
+            <div className="pipeline-timeline">
+
+              {pipelineStages.map(
+                (stage, index) => {
+
+                  const state =
+                    getAgentStateClass(
+                      stage.status ||
+                        stage.state
+                    );
+
+                  const lineClass =
+                    state === "complete"
+                      ? "line-complete"
+                      : state === "active"
+                      ? "line-active"
+                      : "";
+
+                  return (
+                    <div
+                      className={`pipeline-stage ${lineClass}`}
+                      key={
+                        stage.id ||
+                        stage.name ||
+                        stage.title ||
+                        index
+                      }
+                    >
+
+                      <div className="pipeline-node-wrap">
+
+                        <div
+                          className={`pipeline-stage-node ${state}`}
+                        >
+                          {state ===
+                          "complete" ? (
+                            <i className="fa-solid fa-check"></i>
+                          ) : state ===
+                            "active" ? (
+                            <i className="fa-solid fa-spinner fa-spin"></i>
+                          ) : (
+                            index + 1
+                          )}
+                        </div>
+
+                      </div>
+
+                      <div className="pipeline-stage-title">
+                        {index + 1}.{" "}
+                        {stage.name ||
+                          stage.title}
+                      </div>
+
+                      <div className="pipeline-stage-desc">
+                        {stage.description ||
+                          stage.desc}
+                      </div>
+
+                      <div className="pipeline-stage-status">
+                        {getAgentDisplayStatus(
+                          stage.status ||
+                            stage.state
+                        )}
+                      </div>
+
+                    </div>
+                  );
+                }
+              )}
+
+            </div>
+
+          </section>
+
+        </main>
+      </div>
     </div>
   );
 }
