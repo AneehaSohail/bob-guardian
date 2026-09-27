@@ -21,7 +21,7 @@ run Ollama on a non-default host):
 import os
 import json
 import uuid
-from dataclasses import dataclass, asdict, field
+from dataclasses import dataclass, asdict
 from typing import Literal
 
 from langchain_ollama import ChatOllama, OllamaEmbeddings
@@ -60,9 +60,8 @@ def get_chroma_client(persist_dir: str = "./chroma_store") -> chromadb.Persisten
 # ---------------------------------------------------------------------------
 # Shared output schema
 # ---------------------------------------------------------------------------
-# This is the data format the whole team agreed on. Both agents produce
-# records in this shape so the evidence + contradiction agents (Person B's
-# side) can consume either one without caring which agent produced it.
+# Downstream evidence and contradiction agents can consume either output
+# without depending on which agent produced it.
 
 @dataclass
 class Statement:
