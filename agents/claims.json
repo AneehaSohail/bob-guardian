@@ -1,0 +1,452 @@
+[
+  {
+    "id": "73a4d0b1",
+    "type": "claim",
+    "subject": "Backend Import Style",
+    "statement": "Backend uses relative-style bare imports because server.py is run directly, not as a module",
+    "source_file": "AGENTS.md",
+    "source_location": "Critical: Backend Import Style",
+    "raw_excerpt": "# AGENTS.md\n\nThis file provides guidance to agents when working with code in this repository.\n\n## Project Structure\n\nTwo independently-runnable sub-projects at root level:\n- `booking_system_backend/` \u2014 Python FastAPI + FastMCP server\n- `booking_system_frontend/` \u2014 React 18 + TypeScript + Vite fronte"
+  },
+  {
+    "id": "485c8c12",
+    "type": "claim",
+    "subject": "Backend Error Handling Pattern",
+    "statement": "Service functions return BookingOut | ErrorResponse (not raise exceptions)",
+    "source_file": "AGENTS.md",
+    "source_location": "Backend: Error Handling Pattern",
+    "raw_excerpt": "# AGENTS.md\n\nThis file provides guidance to agents when working with code in this repository.\n\n## Project Structure\n\nTwo independently-runnable sub-projects at root level:\n- `booking_system_backend/` \u2014 Python FastAPI + FastMCP server\n- `booking_system_frontend/` \u2014 React 18 + TypeScript + Vite fronte"
+  },
+  {
+    "id": "abba227d",
+    "type": "claim",
+    "subject": "Backend Database",
+    "statement": "SQLite file booking.db created at startup via init_db() + seed() in the FastAPI lifespan",
+    "source_file": "AGENTS.md",
+    "source_location": "Backend: Database",
+    "raw_excerpt": "# AGENTS.md\n\nThis file provides guidance to agents when working with code in this repository.\n\n## Project Structure\n\nTwo independently-runnable sub-projects at root level:\n- `booking_system_backend/` \u2014 Python FastAPI + FastMCP server\n- `booking_system_frontend/` \u2014 React 18 + TypeScript + Vite fronte"
+  },
+  {
+    "id": "cbc99894",
+    "type": "claim",
+    "subject": "Backend MCP + FastAPI Dual Protocol",
+    "statement": "The server exposes both REST (FastAPI) and MCP (FastMCP) on the same process",
+    "source_file": "AGENTS.md",
+    "source_location": "Backend: MCP + FastAPI Dual Protocol",
+    "raw_excerpt": "# AGENTS.md\n\nThis file provides guidance to agents when working with code in this repository.\n\n## Project Structure\n\nTwo independently-runnable sub-projects at root level:\n- `booking_system_backend/` \u2014 Python FastAPI + FastMCP server\n- `booking_system_frontend/` \u2014 React 18 + TypeScript + Vite fronte"
+  },
+  {
+    "id": "966edfab",
+    "type": "claim",
+    "subject": "Frontend API URL",
+    "statement": "Configured via VITE_API_URL env var (see .env.example)",
+    "source_file": "AGENTS.md",
+    "source_location": "Frontend: API URL",
+    "raw_excerpt": "# AGENTS.md\n\nThis file provides guidance to agents when working with code in this repository.\n\n## Project Structure\n\nTwo independently-runnable sub-projects at root level:\n- `booking_system_backend/` \u2014 Python FastAPI + FastMCP server\n- `booking_system_frontend/` \u2014 React 18 + TypeScript + Vite fronte"
+  },
+  {
+    "id": "acb456c3",
+    "type": "claim",
+    "subject": "Frontend Error Detection",
+    "statement": "Use the exported isErrorResponse() from src/services/api.ts to distinguish ErrorResponse from success types",
+    "source_file": "AGENTS.md",
+    "source_location": "Frontend: Error Detection",
+    "raw_excerpt": "# AGENTS.md\n\nThis file provides guidance to agents when working with code in this repository.\n\n## Project Structure\n\nTwo independently-runnable sub-projects at root level:\n- `booking_system_backend/` \u2014 Python FastAPI + FastMCP server\n- `booking_system_frontend/` \u2014 React 18 + TypeScript + Vite fronte"
+  },
+  {
+    "id": "c986ff47",
+    "type": "claim",
+    "subject": "Frontend Types",
+    "statement": "All TypeScript types are in src/types/index.ts",
+    "source_file": "AGENTS.md",
+    "source_location": "Frontend: Types",
+    "raw_excerpt": "# AGENTS.md\n\nThis file provides guidance to agents when working with code in this repository.\n\n## Project Structure\n\nTwo independently-runnable sub-projects at root level:\n- `booking_system_backend/` \u2014 Python FastAPI + FastMCP server\n- `booking_system_frontend/` \u2014 React 18 + TypeScript + Vite fronte"
+  },
+  {
+    "id": "7080887f",
+    "type": "claim",
+    "subject": "Frontend Tailwind Custom Colors",
+    "statement": "Space-themed tokens defined in tailwind.config.js",
+    "source_file": "AGENTS.md",
+    "source_location": "Frontend: Tailwind Custom Colors",
+    "raw_excerpt": "# AGENTS.md\n\nThis file provides guidance to agents when working with code in this repository.\n\n## Project Structure\n\nTwo independently-runnable sub-projects at root level:\n- `booking_system_backend/` \u2014 Python FastAPI + FastMCP server\n- `booking_system_frontend/` \u2014 React 18 + TypeScript + Vite fronte"
+  },
+  {
+    "id": "652a34fc",
+    "type": "claim",
+    "subject": "Frontend TypeScript Strictness",
+    "statement": "tsconfig.app.json enables noUnusedLocals, noUnusedParameters, verbatimModuleSyntax, erasableSyntaxOnly",
+    "source_file": "AGENTS.md",
+    "source_location": "Frontend: TypeScript Strictness",
+    "raw_excerpt": "# AGENTS.md\n\nThis file provides guidance to agents when working with code in this repository.\n\n## Project Structure\n\nTwo independently-runnable sub-projects at root level:\n- `booking_system_backend/` \u2014 Python FastAPI + FastMCP server\n- `booking_system_frontend/` \u2014 React 18 + TypeScript + Vite fronte"
+  },
+  {
+    "id": "bea2f298",
+    "type": "claim",
+    "subject": "HTTP error codes",
+    "statement": "backend returns HTTP 200 for all outcomes; errors are in the body with `success: false` and `error_code`",
+    "source_file": ".bob\\rules-agent\\AGENTS.md",
+    "source_location": "Project Coding Rules (Non-Obvious Only)",
+    "raw_excerpt": "# Project Coding Rules (Non-Obvious Only)\n\n- **Never use HTTP error codes for business errors** \u2014 backend returns HTTP 200 for all outcomes; errors are in the body with `success: false` and `error_code`. Do not add HTTPException raises.\n- **Service functions must return `Type | ErrorResponse`**, not"
+  },
+  {
+    "id": "faff7882",
+    "type": "claim",
+    "subject": "Service functions",
+    "statement": "must return `Type | ErrorResponse`",
+    "source_file": ".bob\\rules-agent\\AGENTS.md",
+    "source_location": "Project Coding Rules (Non-Obvious Only)",
+    "raw_excerpt": "# Project Coding Rules (Non-Obvious Only)\n\n- **Never use HTTP error codes for business errors** \u2014 backend returns HTTP 200 for all outcomes; errors are in the body with `success: false` and `error_code`. Do not add HTTPException raises.\n- **Service functions must return `Type | ErrorResponse`**, not"
+  },
+  {
+    "id": "30d5e0cf",
+    "type": "claim",
+    "subject": "Backend imports",
+    "statement": "are bare (`from models import ...`, not `from booking_system_backend.models import ...`)",
+    "source_file": ".bob\\rules-agent\\AGENTS.md",
+    "source_location": "Project Coding Rules (Non-Obvious Only)",
+    "raw_excerpt": "# Project Coding Rules (Non-Obvious Only)\n\n- **Never use HTTP error codes for business errors** \u2014 backend returns HTTP 200 for all outcomes; errors are in the body with `success: false` and `error_code`. Do not add HTTPException raises.\n- **Service functions must return `Type | ErrorResponse`**, not"
+  },
+  {
+    "id": "882d8184",
+    "type": "claim",
+    "subject": "MCP instance creation",
+    "statement": "must be created before FastAPI app in `server.py`",
+    "source_file": ".bob\\rules-agent\\AGENTS.md",
+    "source_location": "Project Coding Rules (Non-Obvious Only)",
+    "raw_excerpt": "# Project Coding Rules (Non-Obvious Only)\n\n- **Never use HTTP error codes for business errors** \u2014 backend returns HTTP 200 for all outcomes; errors are in the body with `success: false` and `error_code`. Do not add HTTPException raises.\n- **Service functions must return `Type | ErrorResponse`**, not"
+  },
+  {
+    "id": "4a60d221",
+    "type": "claim",
+    "subject": "Frontend field naming",
+    "statement": "fields use `snake_case` names (e.g. `flight_id`, `booking_time`)",
+    "source_file": ".bob\\rules-agent\\AGENTS.md",
+    "source_location": "Project Coding Rules (Non-Obvious Only)",
+    "raw_excerpt": "# Project Coding Rules (Non-Obvious Only)\n\n- **Never use HTTP error codes for business errors** \u2014 backend returns HTTP 200 for all outcomes; errors are in the body with `success: false` and `error_code`. Do not add HTTPException raises.\n- **Service functions must return `Type | ErrorResponse`**, not"
+  },
+  {
+    "id": "8a485a3b",
+    "type": "claim",
+    "subject": "API response checking",
+    "statement": "use `isErrorResponse()` from `src/services/api.ts` to type-narrow API responses",
+    "source_file": ".bob\\rules-agent\\AGENTS.md",
+    "source_location": "Project Coding Rules (Non-Obvious Only)",
+    "raw_excerpt": "# Project Coding Rules (Non-Obvious Only)\n\n- **Never use HTTP error codes for business errors** \u2014 backend returns HTTP 200 for all outcomes; errors are in the body with `success: false` and `error_code`. Do not add HTTPException raises.\n- **Service functions must return `Type | ErrorResponse`**, not"
+  },
+  {
+    "id": "718ff990",
+    "type": "claim",
+    "subject": "Frontend build validation",
+    "statement": "validates TypeScript (`tsc -b` runs before vite)",
+    "source_file": ".bob\\rules-agent\\AGENTS.md",
+    "source_location": "Project Coding Rules (Non-Obvious Only)",
+    "raw_excerpt": "# Project Coding Rules (Non-Obvious Only)\n\n- **Never use HTTP error codes for business errors** \u2014 backend returns HTTP 200 for all outcomes; errors are in the body with `success: false` and `error_code`. Do not add HTTPException raises.\n- **Service functions must return `Type | ErrorResponse`**, not"
+  },
+  {
+    "id": "356b3372",
+    "type": "claim",
+    "subject": "Tests directory",
+    "statement": "must run from `booking_system_backend/` directory",
+    "source_file": ".bob\\rules-agent\\AGENTS.md",
+    "source_location": "Project Coding Rules (Non-Obvious Only)",
+    "raw_excerpt": "# Project Coding Rules (Non-Obvious Only)\n\n- **Never use HTTP error codes for business errors** \u2014 backend returns HTTP 200 for all outcomes; errors are in the body with `success: false` and `error_code`. Do not add HTTPException raises.\n- **Service functions must return `Type | ErrorResponse`**, not"
+  },
+  {
+    "id": "b062fff5",
+    "type": "claim",
+    "subject": "Seeding in tests",
+    "statement": "is always disabled in tests",
+    "source_file": ".bob\\rules-agent\\AGENTS.md",
+    "source_location": "Project Coding Rules (Non-Obvious Only)",
+    "raw_excerpt": "# Project Coding Rules (Non-Obvious Only)\n\n- **Never use HTTP error codes for business errors** \u2014 backend returns HTTP 200 for all outcomes; errors are in the body with `success: false` and `error_code`. Do not add HTTPException raises.\n- **Service functions must return `Type | ErrorResponse`**, not"
+  },
+  {
+    "id": "2ecac7b1",
+    "type": "claim",
+    "subject": "/mcp endpoint",
+    "statement": "is not a REST path",
+    "source_file": ".bob\\rules-ask\\AGENTS.md",
+    "source_location": "Project Documentation Context (Non-Obvious Only)",
+    "raw_excerpt": "# Project Documentation Context (Non-Obvious Only)\n\n- **`/mcp` endpoint is not a REST path** \u2014 it's an MCP (Model Context Protocol) endpoint consumed by AI agents, not browsers. REST API lives at root paths (`/flights`, `/book`, `/cancel/:id`, etc.).\n- **Errors always return HTTP 200** \u2014 documentati"
+  },
+  {
+    "id": "965bf1e3",
+    "type": "claim",
+    "subject": "Errors",
+    "statement": "always return HTTP 200",
+    "source_file": ".bob\\rules-ask\\AGENTS.md",
+    "source_location": "Project Documentation Context (Non-Obvious Only)",
+    "raw_excerpt": "# Project Documentation Context (Non-Obvious Only)\n\n- **`/mcp` endpoint is not a REST path** \u2014 it's an MCP (Model Context Protocol) endpoint consumed by AI agents, not browsers. REST API lives at root paths (`/flights`, `/book`, `/cancel/:id`, etc.).\n- **Errors always return HTTP 200** \u2014 documentati"
+  },
+  {
+    "id": "5767ac59",
+    "type": "claim",
+    "subject": "booking_system_backend/seed.py",
+    "statement": "populates the DB with 10 users, 10 flights, 20 bookings on every cold start",
+    "source_file": ".bob\\rules-ask\\AGENTS.md",
+    "source_location": "Project Documentation Context (Non-Obvious Only)",
+    "raw_excerpt": "# Project Documentation Context (Non-Obvious Only)\n\n- **`/mcp` endpoint is not a REST path** \u2014 it's an MCP (Model Context Protocol) endpoint consumed by AI agents, not browsers. REST API lives at root paths (`/flights`, `/book`, `/cancel/:id`, etc.).\n- **Errors always return HTTP 200** \u2014 documentati"
+  },
+  {
+    "id": "3ec12dfa",
+    "type": "claim",
+    "subject": "src/types/index.ts",
+    "statement": "is the single source of truth for all frontend types",
+    "source_file": ".bob\\rules-ask\\AGENTS.md",
+    "source_location": "Project Documentation Context (Non-Obvious Only)",
+    "raw_excerpt": "# Project Documentation Context (Non-Obvious Only)\n\n- **`/mcp` endpoint is not a REST path** \u2014 it's an MCP (Model Context Protocol) endpoint consumed by AI agents, not browsers. REST API lives at root paths (`/flights`, `/book`, `/cancel/:id`, etc.).\n- **Errors always return HTTP 200** \u2014 documentati"
+  },
+  {
+    "id": "e5209d03",
+    "type": "claim",
+    "subject": "Frontend",
+    "statement": "has no test suite",
+    "source_file": ".bob\\rules-ask\\AGENTS.md",
+    "source_location": "Project Documentation Context (Non-Obvious Only)",
+    "raw_excerpt": "# Project Documentation Context (Non-Obvious Only)\n\n- **`/mcp` endpoint is not a REST path** \u2014 it's an MCP (Model Context Protocol) endpoint consumed by AI agents, not browsers. REST API lives at root paths (`/flights`, `/book`, `/cancel/:id`, etc.).\n- **Errors always return HTTP 200** \u2014 documentati"
+  },
+  {
+    "id": "ea291b59",
+    "type": "claim",
+    "subject": "Backend README",
+    "statement": "has the canonical API endpoint reference and MCP tool descriptions",
+    "source_file": ".bob\\rules-ask\\AGENTS.md",
+    "source_location": "Project Documentation Context (Non-Obvious Only)",
+    "raw_excerpt": "# Project Documentation Context (Non-Obvious Only)\n\n- **`/mcp` endpoint is not a REST path** \u2014 it's an MCP (Model Context Protocol) endpoint consumed by AI agents, not browsers. REST API lives at root paths (`/flights`, `/book`, `/cancel/:id`, etc.).\n- **Errors always return HTTP 200** \u2014 documentati"
+  },
+  {
+    "id": "360fca1e",
+    "type": "claim",
+    "subject": "MCP tools",
+    "statement": "MCP tools open their own DB sessions (`SessionLocal()` directly) rather than using FastAPI's `get_db` dependency.",
+    "source_file": ".bob\\rules-plan\\AGENTS.md",
+    "source_location": "MCP tools open their own DB sessions",
+    "raw_excerpt": "# Project Architecture Rules (Non-Obvious Only)\n\n- **Dual-protocol on one process**: FastAPI (REST + Swagger at `/docs`) and FastMCP (at `/mcp`) share a single uvicorn process on port 8080. MCP tools and REST endpoints call the same service functions.\n- **MCP tools open their own DB sessions** (`Ses"
+  },
+  {
+    "id": "ee87a92e",
+    "type": "claim",
+    "subject": "/login endpoint",
+    "statement": "No authentication layer \u2014 user identity is verified by matching both `user_id` and `name` on booking.",
+    "source_file": ".bob\\rules-plan\\AGENTS.md",
+    "source_location": "No authentication layer",
+    "raw_excerpt": "# Project Architecture Rules (Non-Obvious Only)\n\n- **Dual-protocol on one process**: FastAPI (REST + Swagger at `/docs`) and FastMCP (at `/mcp`) share a single uvicorn process on port 8080. MCP tools and REST endpoints call the same service functions.\n- **MCP tools open their own DB sessions** (`Ses"
+  },
+  {
+    "id": "d811b6db",
+    "type": "claim",
+    "subject": "REST endpoints",
+    "statement": "REST endpoints use `Depends(get_db)` (yields a session, auto-closes).",
+    "source_file": ".bob\\rules-plan\\AGENTS.md",
+    "source_location": "REST endpoints use `Depends(get_db)`",
+    "raw_excerpt": "# Project Architecture Rules (Non-Obvious Only)\n\n- **Dual-protocol on one process**: FastAPI (REST + Swagger at `/docs`) and FastMCP (at `/mcp`) share a single uvicorn process on port 8080. MCP tools and REST endpoints call the same service functions.\n- **MCP tools open their own DB sessions** (`Ses"
+  },
+  {
+    "id": "589ceb0a",
+    "type": "claim",
+    "subject": "Database",
+    "statement": "Database is file-based SQLite (`booking.db`) \u2014 no migrations framework.",
+    "source_file": ".bob\\rules-plan\\AGENTS.md",
+    "source_location": "Database is file-based SQLite",
+    "raw_excerpt": "# Project Architecture Rules (Non-Obvious Only)\n\n- **Dual-protocol on one process**: FastAPI (REST + Swagger at `/docs`) and FastMCP (at `/mcp`) share a single uvicorn process on port 8080. MCP tools and REST endpoints call the same service functions.\n- **MCP tools open their own DB sessions** (`Ses"
+  },
+  {
+    "id": "31508332",
+    "type": "claim",
+    "subject": "Booking status values",
+    "statement": "Booking status values are strings (`\"booked\"`, \"\"cancelled\"`) stored in SQLite \u2014 not an enum type in the ORM model.",
+    "source_file": ".bob\\rules-plan\\AGENTS.md",
+    "source_location": "Booking status values are strings",
+    "raw_excerpt": "# Project Architecture Rules (Non-Obvious Only)\n\n- **Dual-protocol on one process**: FastAPI (REST + Swagger at `/docs`) and FastMCP (at `/mcp`) share a single uvicorn process on port 8080. MCP tools and REST endpoints call the same service functions.\n- **MCP tools open their own DB sessions** (`Ses"
+  },
+  {
+    "id": "d305f0f5",
+    "type": "claim",
+    "subject": "Time fields",
+    "statement": "`departure_time`/`arrival_time`/`booking_time` are ISO strings, not datetime columns \u2014 stored as `String` in SQLAlchemy, serialized as-is.",
+    "source_file": ".bob\\rules-plan\\AGENTS.md",
+    "source_location": "`departure_time`/`arrival_time`/`booking_time` are ISO strings",
+    "raw_excerpt": "# Project Architecture Rules (Non-Obvious Only)\n\n- **Dual-protocol on one process**: FastAPI (REST + Swagger at `/docs`) and FastMCP (at `/mcp`) share a single uvicorn process on port 8080. MCP tools and REST endpoints call the same service functions.\n- **MCP tools open their own DB sessions** (`Ses"
+  },
+  {
+    "id": "06efe1f8",
+    "type": "claim",
+    "subject": "Frontend",
+    "statement": "Frontend has no state management library \u2014 user context is passed via React Context only.",
+    "source_file": ".bob\\rules-plan\\AGENTS.md",
+    "source_location": "Frontend has no state management library",
+    "raw_excerpt": "# Project Architecture Rules (Non-Obvious Only)\n\n- **Dual-protocol on one process**: FastAPI (REST + Swagger at `/docs`) and FastMCP (at `/mcp`) share a single uvicorn process on port 8080. MCP tools and REST endpoints call the same service functions.\n- **MCP tools open their own DB sessions** (`Ses"
+  },
+  {
+    "id": "757eb5ee",
+    "type": "claim",
+    "subject": "User Management",
+    "statement": "Simple name/email authentication",
+    "source_file": "README.md",
+    "source_location": "Features section",
+    "raw_excerpt": "# \ud83d\ude80 Galaxium Travels - Interplanetary Booking System\n\nA complete full-stack application for booking interplanetary space travel, featuring a modern React frontend and a FastAPI backend with dual REST and MCP protocol support.\n\n## \ud83c\udf1f Features\n\n- **Modern Space-Themed UI** - Beautiful, responsive inter"
+  },
+  {
+    "id": "52eea310",
+    "type": "claim",
+    "subject": "Database",
+    "statement": "SQLite - Lightweight database",
+    "source_file": "README.md",
+    "source_location": "Backend Technology Stack section",
+    "raw_excerpt": "# \ud83d\ude80 Galaxium Travels - Interplanetary Booking System\n\nA complete full-stack application for booking interplanetary space travel, featuring a modern React frontend and a FastAPI backend with dual REST and MCP protocol support.\n\n## \ud83c\udf1f Features\n\n- **Modern Space-Themed UI** - Beautiful, responsive inter"
+  },
+  {
+    "id": "654465ee",
+    "type": "claim",
+    "subject": "API Endpoints",
+    "statement": "API endpoints documentation",
+    "source_file": "README.md",
+    "source_location": "Backend Documentation section",
+    "raw_excerpt": "# \ud83d\ude80 Galaxium Travels - Interplanetary Booking System\n\nA complete full-stack application for booking interplanetary space travel, featuring a modern React frontend and a FastAPI backend with dual REST and MCP protocol support.\n\n## \ud83c\udf1f Features\n\n- **Modern Space-Themed UI** - Beautiful, responsive inter"
+  },
+  {
+    "id": "678cb444",
+    "type": "claim",
+    "subject": "MCP Endpoint",
+    "statement": "http://localhost:8080/mcp",
+    "source_file": "README.md",
+    "source_location": "Access the Application section",
+    "raw_excerpt": "# \ud83d\ude80 Galaxium Travels - Interplanetary Booking System\n\nA complete full-stack application for booking interplanetary space travel, featuring a modern React frontend and a FastAPI backend with dual REST and MCP protocol support.\n\n## \ud83c\udf1f Features\n\n- **Modern Space-Themed UI** - Beautiful, responsive inter"
+  },
+  {
+    "id": "b0948788",
+    "type": "claim",
+    "subject": "Backend Server",
+    "statement": "Start the backend server on port 8080",
+    "source_file": "README.md",
+    "source_location": "Quick Start section",
+    "raw_excerpt": "# \ud83d\ude80 Galaxium Travels - Interplanetary Booking System\n\nA complete full-stack application for booking interplanetary space travel, featuring a modern React frontend and a FastAPI backend with dual REST and MCP protocol support.\n\n## \ud83c\udf1f Features\n\n- **Modern Space-Themed UI** - Beautiful, responsive inter"
+  },
+  {
+    "id": "30e95e5c",
+    "type": "claim",
+    "subject": "Frontend Server",
+    "statement": "Start the frontend dev server on port 5173",
+    "source_file": "README.md",
+    "source_location": "Quick Start section",
+    "raw_excerpt": "# \ud83d\ude80 Galaxium Travels - Interplanetary Booking System\n\nA complete full-stack application for booking interplanetary space travel, featuring a modern React frontend and a FastAPI backend with dual REST and MCP protocol support.\n\n## \ud83c\udf1f Features\n\n- **Modern Space-Themed UI** - Beautiful, responsive inter"
+  },
+  {
+    "id": "327d46b0",
+    "type": "claim",
+    "subject": "Database Schema",
+    "statement": "Database schema",
+    "source_file": "README.md",
+    "source_location": "Backend Documentation section",
+    "raw_excerpt": "# \ud83d\ude80 Galaxium Travels - Interplanetary Booking System\n\nA complete full-stack application for booking interplanetary space travel, featuring a modern React frontend and a FastAPI backend with dual REST and MCP protocol support.\n\n## \ud83c\udf1f Features\n\n- **Modern Space-Themed UI** - Beautiful, responsive inter"
+  },
+  {
+    "id": "bb137104",
+    "type": "claim",
+    "subject": "Testing",
+    "statement": "Testing instructions",
+    "source_file": "README.md",
+    "source_location": "Backend Documentation section",
+    "raw_excerpt": "# \ud83d\ude80 Galaxium Travels - Interplanetary Booking System\n\nA complete full-stack application for booking interplanetary space travel, featuring a modern React frontend and a FastAPI backend with dual REST and MCP protocol support.\n\n## \ud83c\udf1f Features\n\n- **Modern Space-Themed UI** - Beautiful, responsive inter"
+  },
+  {
+    "id": "848f9304",
+    "type": "claim",
+    "subject": "Backend Tests",
+    "statement": "Run pytest in the booking_system_backend directory",
+    "source_file": "README.md",
+    "source_location": "Backend Tests section",
+    "raw_excerpt": "**Vite** - Build tool\n- **Tailwind CSS** - Styling\n- **Framer Motion** - Animations\n- **React Router** - Routing\n- **Axios** - HTTP client\n- **React Hot Toast** - Notifications\n\n## \ud83e\uddea Testing\n\n### Backend Tests\n```bash\ncd booking_system_backend\npytest\n```\n\n### Frontend Build Test\n```bash\ncd booking_s"
+  },
+  {
+    "id": "0be1bf5c",
+    "type": "claim",
+    "subject": "Frontend Build Test",
+    "statement": "Run npm run build in the booking_system_frontend directory",
+    "source_file": "README.md",
+    "source_location": "Frontend Build Test section",
+    "raw_excerpt": "**Vite** - Build tool\n- **Tailwind CSS** - Styling\n- **Framer Motion** - Animations\n- **React Router** - Routing\n- **Axios** - HTTP client\n- **React Hot Toast** - Notifications\n\n## \ud83e\uddea Testing\n\n### Backend Tests\n```bash\ncd booking_system_backend\npytest\n```\n\n### Frontend Build Test\n```bash\ncd booking_s"
+  },
+  {
+    "id": "e44963c6",
+    "type": "claim",
+    "subject": "Backend Deployment",
+    "statement": "Install dependencies with pip and run the server with uvicorn",
+    "source_file": "README.md",
+    "source_location": "Backend section",
+    "raw_excerpt": "**Vite** - Build tool\n- **Tailwind CSS** - Styling\n- **Framer Motion** - Animations\n- **React Router** - Routing\n- **Axios** - HTTP client\n- **React Hot Toast** - Notifications\n\n## \ud83e\uddea Testing\n\n### Backend Tests\n```bash\ncd booking_system_backend\npytest\n```\n\n### Frontend Build Test\n```bash\ncd booking_s"
+  },
+  {
+    "id": "780eb0ea",
+    "type": "claim",
+    "subject": "Frontend Deployment",
+    "statement": "Run npm run build and deploy the 'dist' folder",
+    "source_file": "README.md",
+    "source_location": "Frontend section",
+    "raw_excerpt": "**Vite** - Build tool\n- **Tailwind CSS** - Styling\n- **Framer Motion** - Animations\n- **React Router** - Routing\n- **Axios** - HTTP client\n- **React Hot Toast** - Notifications\n\n## \ud83e\uddea Testing\n\n### Backend Tests\n```bash\ncd booking_system_backend\npytest\n```\n\n### Frontend Build Test\n```bash\ncd booking_s"
+  },
+  {
+    "id": "0245333d",
+    "type": "claim",
+    "subject": "Docker Support",
+    "statement": "Both backend and frontend include Dockerfiles for containerized deployment",
+    "source_file": "README.md",
+    "source_location": "Docker Support section",
+    "raw_excerpt": "**Vite** - Build tool\n- **Tailwind CSS** - Styling\n- **Framer Motion** - Animations\n- **React Router** - Routing\n- **Axios** - HTTP client\n- **React Hot Toast** - Notifications\n\n## \ud83e\uddea Testing\n\n### Backend Tests\n```bash\ncd booking_system_backend\npytest\n```\n\n### Frontend Build Test\n```bash\ncd booking_s"
+  },
+  {
+    "id": "281fae3d",
+    "type": "claim",
+    "subject": "Change API URL",
+    "statement": "Edit the VITE_API_URL in booking_system_frontend/.env",
+    "source_file": "README.md",
+    "source_location": "Change API URL section",
+    "raw_excerpt": "**Vite** - Build tool\n- **Tailwind CSS** - Styling\n- **Framer Motion** - Animations\n- **React Router** - Routing\n- **Axios** - HTTP client\n- **React Hot Toast** - Notifications\n\n## \ud83e\uddea Testing\n\n### Backend Tests\n```bash\ncd booking_system_backend\npytest\n```\n\n### Frontend Build Test\n```bash\ncd booking_s"
+  },
+  {
+    "id": "b8c81964",
+    "type": "claim",
+    "subject": "Modify Theme Colors",
+    "statement": "Edit the colors in booking_system_frontend/tailwind.config.js",
+    "source_file": "README.md",
+    "source_location": "Modify Theme Colors section",
+    "raw_excerpt": "**Vite** - Build tool\n- **Tailwind CSS** - Styling\n- **Framer Motion** - Animations\n- **React Router** - Routing\n- **Axios** - HTTP client\n- **React Hot Toast** - Notifications\n\n## \ud83e\uddea Testing\n\n### Backend Tests\n```bash\ncd booking_system_backend\npytest\n```\n\n### Frontend Build Test\n```bash\ncd booking_s"
+  },
+  {
+    "id": "02a84fb7",
+    "type": "claim",
+    "subject": "Backend Troubleshooting",
+    "statement": "Ensure Python 3.8+ is installed, check port 8080, and verify dependencies",
+    "source_file": "README.md",
+    "source_location": "Backend won't start section",
+    "raw_excerpt": "**Vite** - Build tool\n- **Tailwind CSS** - Styling\n- **Framer Motion** - Animations\n- **React Router** - Routing\n- **Axios** - HTTP client\n- **React Hot Toast** - Notifications\n\n## \ud83e\uddea Testing\n\n### Backend Tests\n```bash\ncd booking_system_backend\npytest\n```\n\n### Frontend Build Test\n```bash\ncd booking_s"
+  },
+  {
+    "id": "051f9c8a",
+    "type": "claim",
+    "subject": "Frontend Troubleshooting",
+    "statement": "Ensure Node.js 18+ is installed, check port 5173, and delete node_modules",
+    "source_file": "README.md",
+    "source_location": "Frontend won't start section",
+    "raw_excerpt": "**Vite** - Build tool\n- **Tailwind CSS** - Styling\n- **Framer Motion** - Animations\n- **React Router** - Routing\n- **Axios** - HTTP client\n- **React Hot Toast** - Notifications\n\n## \ud83e\uddea Testing\n\n### Backend Tests\n```bash\ncd booking_system_backend\npytest\n```\n\n### Frontend Build Test\n```bash\ncd booking_s"
+  },
+  {
+    "id": "9543eb61",
+    "type": "claim",
+    "subject": "Connection Issues",
+    "statement": "Verify backend is running on http://localhost:8080, check CORS settings, and ensure .env file exists",
+    "source_file": "README.md",
+    "source_location": "Connection Issues section",
+    "raw_excerpt": "**Vite** - Build tool\n- **Tailwind CSS** - Styling\n- **Framer Motion** - Animations\n- **React Router** - Routing\n- **Axios** - HTTP client\n- **React Hot Toast** - Notifications\n\n## \ud83e\uddea Testing\n\n### Backend Tests\n```bash\ncd booking_system_backend\npytest\n```\n\n### Frontend Build Test\n```bash\ncd booking_s"
+  },
+  {
+    "id": "4c1267df",
+    "type": "claim",
+    "subject": "server port",
+    "statement": "The backend server runs on port 9090",
+    "source_file": "AGENTS.md",
+    "source_location": "Server Configuration section",
+    "raw_excerpt": "The backend server runs on port 9090."
+  }
+]

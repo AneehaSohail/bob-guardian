@@ -13,7 +13,9 @@ Usage:
 import os
 import argparse
 import json
+import hashlib
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from shared_config import get_llm, get_embeddings, get_chroma_client, Statement, save_statements
 
@@ -112,7 +114,17 @@ def extract_facts_from_file(llm, filepath: Path, repo_path: Path) -> list[Statem
     return statements
 
 
-def run_code_reality_agent(repo_path: str, out_path: str, persist_dir: str = "./chroma_store") -> list[Statement]:
+def _file_hash(filepath: Path) -> str:
+    """MD5 of file contents — used to skip unchanged files."""
+    return hashlib.md5(filepath.read_bytes()).hexdigest()
+
+
+def run_code_reality_agent(
+    repo_path: str,
+    out_path: str,
+    persist_dir: str = "./chroma_store",
+    max_workers: int = 4,
+) -> list[Statement]:
     repo = Path(repo_path).resolve()
     code_files = find_code_files(repo)
 
@@ -122,20 +134,40 @@ def run_code_reality_agent(repo_path: str, out_path: str, persist_dir: str = "./
 
     print(f"Found {len(code_files)} code file(s) to scan")
 
+    # Skip files that haven't changed since last run
+    client = get_chroma_client(persist_dir)
+    collection = client.get_or_create_collection("code_reality")
+    existing_meta = collection.get(include=["metadatas"])["metadatas"] or []
+    processed_hashes = {m.get("file_hash") for m in existing_meta if m.get("file_hash")}
+
+    files_to_process = []
+    skipped = 0
+    for f in code_files:
+        if _file_hash(f) in processed_hashes:
+            skipped += 1
+        else:
+            files_to_process.append(f)
+
+    if skipped:
+        print(f"Skipping {skipped} unchanged file(s) (already in ChromaDB)")
+
     llm = get_llm()
     all_statements: list[Statement] = []
 
-    for filepath in code_files:
-        rel = filepath.relative_to(repo)
-        print(f"Extracting facts from {rel}...")
-        statements = extract_facts_from_file(llm, filepath, repo)
-        print(f"  -> {len(statements)} fact(s) found")
-        all_statements.extend(statements)
+    def process_file(filepath: Path):
+        stmts = extract_facts_from_file(llm, filepath, repo)
+        print(f"  {filepath.relative_to(repo)} -> {len(stmts)} fact(s)")
+        return filepath, stmts
+
+    with ThreadPoolExecutor(max_workers=max_workers) as pool:
+        futures = {pool.submit(process_file, f): f for f in files_to_process}
+        for future in as_completed(futures):
+            filepath, stmts = future.result()
+            all_statements.extend(stmts)
 
     if all_statements:
         embeddings = get_embeddings()
-        client = get_chroma_client(persist_dir)
-        collection = client.get_or_create_collection("code_reality")
+        fhash_map = {str(f.relative_to(repo)): _file_hash(f) for f in files_to_process}
 
         texts = [s.statement for s in all_statements]
         vectors = embeddings.embed_documents(texts)
@@ -148,6 +180,7 @@ def run_code_reality_agent(repo_path: str, out_path: str, persist_dir: str = "./
                 "subject": s.subject,
                 "source_file": s.source_file,
                 "source_location": s.source_location,
+                "file_hash": fhash_map.get(s.source_file, ""),
             } for s in all_statements],
         )
         print(f"Stored {len(all_statements)} facts in ChromaDB collection 'code_reality'")
@@ -163,4 +196,4 @@ if __name__ == "__main__":
     parser.add_argument("--chroma-dir", default="./chroma_store", help="ChromaDB persist directory")
     args = parser.parse_args()
 
-    run_code_reality_agent(args.repo, args.out, args.chroma_dir)
+    run_code_reality_agent(args.repo, args.out, args.chroma_dir, max_workers=4)

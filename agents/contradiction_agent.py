@@ -73,34 +73,38 @@ def load_statements(path: str) -> list[Statement]:
     return [Statement(**item) for item in raw]
 
 
-def match_claim_to_facts(
-    claim: Statement,
+def match_claims_to_facts_batch(
+    claims: list[Statement],
     embeddings,
     chroma_collection,
     top_k: int = 3,
-) -> list[tuple[dict, float]]:
-    """Query the code_reality collection for facts semantically similar
-    to this claim. Returns list of (metadata+document, similarity_score)."""
-    query_vector = embeddings.embed_query(claim.statement)
-    results = chroma_collection.query(
-        query_embeddings=[query_vector],
-        n_results=top_k,
-    )
+) -> list[list[tuple[dict, float]]]:
+    """Embed all claim statements in a single batch call, then query ChromaDB
+    for each. Returns one result list per claim."""
+    # One embed_documents call instead of N embed_query calls
+    vectors = embeddings.embed_documents([c.statement for c in claims])
 
-    matches = []
-    if results["ids"] and results["ids"][0]:
-        for i in range(len(results["ids"][0])):
-            distance = results["distances"][0][i]
-            similarity = 1 - distance  # chroma returns cosine distance by default
-            matches.append((
-                {
-                    "id": results["ids"][0][i],
-                    "document": results["documents"][0][i],
-                    "metadata": results["metadatas"][0][i],
-                },
-                similarity,
-            ))
-    return matches
+    all_matches: list[list[tuple[dict, float]]] = []
+    for vector in vectors:
+        results = chroma_collection.query(
+            query_embeddings=[vector],
+            n_results=top_k,
+        )
+        matches = []
+        if results["ids"] and results["ids"][0]:
+            for i in range(len(results["ids"][0])):
+                distance = results["distances"][0][i]
+                similarity = 1 - distance
+                matches.append((
+                    {
+                        "id": results["ids"][0][i],
+                        "document": results["documents"][0][i],
+                        "metadata": results["metadatas"][0][i],
+                    },
+                    similarity,
+                ))
+        all_matches.append(matches)
+    return all_matches
 
 
 def judge_pair(llm, claim_text: str, fact_text: str) -> dict:
@@ -122,7 +126,7 @@ def judge_pair(llm, claim_text: str, fact_text: str) -> dict:
         }
 
 
-MIN_SIMILARITY_TO_JUDGE = 0.55  # below this, don't bother calling the LLM
+MIN_SIMILARITY_TO_JUDGE = 0.40  # below this, don't bother calling the LLM
 
 
 def run_contradiction_agent(
@@ -142,11 +146,11 @@ def run_contradiction_agent(
 
     findings: list[Finding] = []
 
-    for claim in claims:
-        matches = match_claim_to_facts(claim, embeddings, reality_collection, top_k)
+    # Embed all claims in one batch instead of one-at-a-time
+    print("Embedding all claims in batch...")
+    all_matches = match_claims_to_facts_batch(claims, embeddings, reality_collection, top_k)
 
-        # No matching fact found at all -> claim is unverifiable, worth flagging
-        # since it means nothing in the code confirms this documented behavior
+    for claim, matches in zip(claims, all_matches):
         relevant_matches = [m for m in matches if m[1] >= MIN_SIMILARITY_TO_JUDGE]
 
         if not relevant_matches:
