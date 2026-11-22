@@ -1,0 +1,50 @@
+{
+  "agent": "documentation_consistency",
+  "status": "completed",
+  "sources_checked": [
+    "README.md",
+    "AGENTS.md",
+    "agents/documentation_consistency.md",
+    ".bob/rules-agent/AGENTS.md",
+    ".bob/rules-ask/AGENTS.md",
+    ".bob/rules-plan/AGENTS.md"
+  ],
+  "findings": [
+    {
+      "finding_id": "DC-001",
+      "topic": "Repository contents — files beyond README",
+      "claim_a": "currently only a `README.md` exists. No source code, build system, package manager, or configuration files are present yet.",
+      "source_a": "AGENTS.md",
+      "location_a": "AGENTS.md, line 7",
+      "claim_b": "The `.bob/rules-agent/`, `.bob/rules-ask/`, and `.bob/rules-plan/` directories contain mode-specific guidance.",
+      "source_b": "AGENTS.md",
+      "location_b": "AGENTS.md, line 23",
+      "severity": "medium",
+      "explanation": "Within the same file, line 7 states that only README.md exists, while line 23 explicitly acknowledges three populated subdirectories under .bob/ that contain AGENTS.md guidance files. The repository also contains an agents/ directory with documentation_consistency.md, further contradicting the 'only a README.md' claim. This internal contradiction could mislead an agent or developer into believing the repository has no content other than README.md."
+    },
+    {
+      "finding_id": "DC-002",
+      "topic": "Repository contents — files beyond README",
+      "claim_a": "The repository contains only a README. There is no source documentation, API reference, or architecture docs to reference yet.",
+      "source_a": ".bob/rules-ask/AGENTS.md",
+      "location_a": ".bob/rules-ask/AGENTS.md, line 7",
+      "claim_b": "The `.bob/rules-agent/`, `.bob/rules-ask/`, and `.bob/rules-plan/` directories contain mode-specific guidance.",
+      "source_b": "AGENTS.md",
+      "location_b": "AGENTS.md, line 23",
+      "severity": "medium",
+      "explanation": ".bob/rules-ask/AGENTS.md asserts that the repository contains only a README and no source documentation. However, the root AGENTS.md explicitly states that three .bob/ subdirectories contain mode-specific guidance files — and those files do exist. Additionally, agents/documentation_consistency.md is a substantive documentation file that defines agent behavior. This means the 'only a README' claim is contradicted by another documentation source."
+    },
+    {
+      "finding_id": "DC-003",
+      "topic": "Repository contents — agents directory documentation",
+      "claim_a": "The repository contains only a README. There is no source documentation, API reference, or architecture docs to reference yet.",
+      "source_a": ".bob/rules-ask/AGENTS.md",
+      "location_a": ".bob/rules-ask/AGENTS.md, line 7",
+      "claim_b": "agents/documentation_consistency.md describes the Documentation Consistency Agent including its purpose, sources to inspect, topics to compare, rules, output schema, and severity levels.",
+      "source_b": "agents/documentation_consistency.md",
+      "location_b": "agents/documentation_consistency.md, lines 1–125",
+      "severity": "high",
+      "explanation": ".bob/rules-ask/AGENTS.md states there is no source documentation to reference, which would cause any agent operating in Ask mode to incorrectly ignore or report the non-existence of agents/documentation_consistency.md. That file is a concrete documentation artifact defining an agent's behavior. A developer or agent relying on the Ask-mode guidance would be misled into thinking no agent specifications exist, which could cause incorrect answers about the project's documented capabilities."
+    }
+  ]
+}

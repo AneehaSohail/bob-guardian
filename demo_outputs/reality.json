@@ -1,0 +1,11 @@
+[
+  {
+    "id": "cf56ebbb",
+    "type": "fact",
+    "subject": "server port",
+    "statement": "The server runs on port 8080 via uvicorn.run(app, host=0.0.0.0, port=8080)",
+    "source_file": "booking_system_backend/server.py",
+    "source_location": "if __name__ == __main__ block",
+    "raw_excerpt": "uvicorn.run(app, host=0.0.0.0, port=8080)"
+  }
+]

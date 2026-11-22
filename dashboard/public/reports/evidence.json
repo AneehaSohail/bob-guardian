@@ -1,0 +1,150 @@
+{
+  "agent": "evidence",
+  "status": "completed",
+  "findings": [
+    {
+      "finding_id": "DC-001",
+      "claim": "AGENTS.md line 7 states 'currently only a README.md exists. No source code, build system, package manager, or configuration files are present yet.' — but line 23 of the same file explicitly acknowledges three populated .bob/ subdirectories containing mode-specific guidance files.",
+      "evidence": [
+        {
+          "file": "AGENTS.md",
+          "line_start": 7,
+          "line_end": 7,
+          "excerpt": "This repository is in early scaffolding stage — currently only a `README.md` exists. No source code, build system, package manager, or configuration files are present yet.",
+          "source_type": "documentation",
+          "strength": "high"
+        },
+        {
+          "file": "AGENTS.md",
+          "line_start": 23,
+          "line_end": 23,
+          "excerpt": "- The `.bob/rules-agent/`, `.bob/rules-ask/`, and `.bob/rules-plan/` directories contain mode-specific guidance.",
+          "source_type": "documentation",
+          "strength": "high"
+        },
+        {
+          "file": ".bob/rules-agent/AGENTS.md",
+          "line_start": 1,
+          "line_end": 13,
+          "excerpt": "# Agent Mode — Coding Rules\n\nThis file provides guidance to agents when working with code in this repository.",
+          "source_type": "configuration",
+          "strength": "high"
+        },
+        {
+          "file": ".bob/rules-ask/AGENTS.md",
+          "line_start": 1,
+          "line_end": 13,
+          "excerpt": "# Ask Mode — Documentation Context\n\nThis file provides guidance to agents when working with code in this repository.",
+          "source_type": "configuration",
+          "strength": "high"
+        },
+        {
+          "file": ".bob/rules-plan/AGENTS.md",
+          "line_start": 1,
+          "line_end": 13,
+          "excerpt": "# Plan Mode — Architecture Rules\n\nThis file provides guidance to agents when working with code in this repository.",
+          "source_type": "configuration",
+          "strength": "high"
+        },
+        {
+          "file": "agents/documentation_consistency.md",
+          "line_start": 1,
+          "line_end": 3,
+          "excerpt": "# Documentation Consistency Agent\n\n## Purpose",
+          "source_type": "documentation",
+          "strength": "high"
+        },
+        {
+          "file": "agents/evidence_agent.md",
+          "line_start": 1,
+          "line_end": 3,
+          "excerpt": "# Evidence Agent\n\n## Purpose",
+          "source_type": "documentation",
+          "strength": "high"
+        }
+      ],
+      "conclusion": "The claim in AGENTS.md line 7 that 'only a README.md exists' is directly contradicted by line 23 of the same file, which acknowledges three .bob/ subdirectories with mode-specific guidance. The repository listing confirms that .bob/rules-agent/AGENTS.md, .bob/rules-ask/AGENTS.md, .bob/rules-plan/AGENTS.md, agents/documentation_consistency.md, and agents/evidence_agent.md all physically exist. The 'only a README' statement is a stale description of an earlier state; the repository currently contains multiple documentation files. CONTRADICTS the DC-001 claim_a.",
+      "confidence": "high"
+    },
+    {
+      "finding_id": "DC-002",
+      "claim": ".bob/rules-ask/AGENTS.md line 7 states 'The repository contains only a README. There is no source documentation, API reference, or architecture docs to reference yet.' — while root AGENTS.md line 23 acknowledges three .bob/ subdirectories with mode-specific guidance files.",
+      "evidence": [
+        {
+          "file": ".bob/rules-ask/AGENTS.md",
+          "line_start": 7,
+          "line_end": 7,
+          "excerpt": "The repository contains only a README. There is no source documentation, API reference, or architecture docs to reference yet.",
+          "source_type": "configuration",
+          "strength": "high"
+        },
+        {
+          "file": "AGENTS.md",
+          "line_start": 23,
+          "line_end": 23,
+          "excerpt": "- The `.bob/rules-agent/`, `.bob/rules-ask/`, and `.bob/rules-plan/` directories contain mode-specific guidance.",
+          "source_type": "documentation",
+          "strength": "high"
+        },
+        {
+          "file": ".bob/rules-agent/AGENTS.md",
+          "line_start": 1,
+          "line_end": 13,
+          "excerpt": "# Agent Mode — Coding Rules\n\nThis file provides guidance to agents when working with code in this repository.",
+          "source_type": "configuration",
+          "strength": "high"
+        },
+        {
+          "file": ".bob/rules-plan/AGENTS.md",
+          "line_start": 1,
+          "line_end": 13,
+          "excerpt": "# Plan Mode — Architecture Rules\n\nThis file provides guidance to agents when working with code in this repository.",
+          "source_type": "configuration",
+          "strength": "high"
+        }
+      ],
+      "conclusion": "The claim in .bob/rules-ask/AGENTS.md line 7 that 'the repository contains only a README' is directly contradicted by root AGENTS.md line 23, which explicitly names three .bob/ subdirectories that contain mode-specific guidance. The files .bob/rules-agent/AGENTS.md and .bob/rules-plan/AGENTS.md have been verified to exist and contain content. The 'only a README' statement in the Ask-mode rules file is factually incorrect and would cause an agent operating in Ask mode to misreport the repository's contents. CONTRADICTS the DC-002 claim_a.",
+      "confidence": "high"
+    },
+    {
+      "finding_id": "DC-003",
+      "claim": ".bob/rules-ask/AGENTS.md line 7 states 'There is no source documentation, API reference, or architecture docs to reference yet.' — while agents/documentation_consistency.md is a substantive 125-line documentation file defining the Documentation Consistency Agent's purpose, rules, and output schema.",
+      "evidence": [
+        {
+          "file": ".bob/rules-ask/AGENTS.md",
+          "line_start": 7,
+          "line_end": 7,
+          "excerpt": "The repository contains only a README. There is no source documentation, API reference, or architecture docs to reference yet.",
+          "source_type": "configuration",
+          "strength": "high"
+        },
+        {
+          "file": "agents/documentation_consistency.md",
+          "line_start": 1,
+          "line_end": 8,
+          "excerpt": "# Documentation Consistency Agent\n\n## Purpose\n\nThe Documentation Consistency Agent identifies contradictions,\ninconsistencies, outdated claims, and conflicting statements between\ndocumentation sources in a software repository.",
+          "source_type": "documentation",
+          "strength": "high"
+        },
+        {
+          "file": "agents/documentation_consistency.md",
+          "line_start": 96,
+          "line_end": 118,
+          "excerpt": "## Output\n\nThe agent must produce valid JSON with this structure:\n\n{\n  \"agent\": \"documentation_consistency\",\n  \"status\": \"completed\",\n  \"sources_checked\": [],\n  \"findings\": [...]",
+          "source_type": "documentation",
+          "strength": "high"
+        },
+        {
+          "file": "agents/evidence_agent.md",
+          "line_start": 1,
+          "line_end": 10,
+          "excerpt": "# Evidence Agent\n\n## Purpose\n\nThe Evidence Agent verifies claims and contradictions identified by\nother BOB Guardian agents by searching the repository for concrete,\nauthoritative evidence.",
+          "source_type": "documentation",
+          "strength": "high"
+        }
+      ],
+      "conclusion": "The claim in .bob/rules-ask/AGENTS.md that 'there is no source documentation' is directly contradicted by the verified existence of agents/documentation_consistency.md (125 lines) and agents/evidence_agent.md (168 lines). Both files are concrete documentation artifacts that define agent behavior, output schemas, evidence rules, and severity levels. An agent operating under Ask-mode rules would incorrectly assert that no agent specifications or documentation exist, which is factually false. CONTRADICTS the DC-003 claim_a.",
+      "confidence": "high"
+    }
+  ]
+}
